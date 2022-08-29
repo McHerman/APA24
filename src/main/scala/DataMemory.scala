@@ -19,6 +19,9 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
   val CompleteDelayRegister = RegInit(0.U(1.W))
   //val CompleteDelayExternal = RegInit(0.U(1.W))
 
+  val CntReg = RegInit(0.U(4.W))
+  val StorageReg = Reg(Vec(16,UInt(24.W)))
+
   for(i <- 0 until Memports){
     for(j <- 0 until 16){
       io.MemPort(i).ReadData(j) := 0.U
@@ -51,10 +54,25 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
     }
   }
 
+  val rdwrPort = Memory(io.MemPort(Producer).Address + CntReg)
+
   when(CompleteDelayInternal.asBool || CompleteDelayRegister.asBool){
     CompleteDelayInternal := false.B
     CompleteDelayInternal := false.B
     io.MemPort(Producer).Completed := true.B
+
+    for(i <- 0 until 15){
+      switch(io.MemPort(Producer).Len){
+        is(i.U){
+          for(j <- 0 until i){
+            io.MemPort(Producer).ReadData(j) := StorageReg(j)
+          }
+
+          io.MemPort(Producer).ReadData(i) := rdwrPort
+        }
+      }
+    }
+
     Taken := 0.U
   }
 
@@ -64,14 +82,33 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
 
   when(io.MemPort(Producer).Enable){
     when(io.MemPort(Producer).Address <= Memsize.U || CompleteDelayInternal.asBool){ // Internal data memory
-      val rdwrPort = Memory(io.MemPort(Producer).Address)
-      when (io.MemPort(Producer).WriteEn) {
-        rdwrPort := io.MemPort(Producer).WriteData(0)
+      CntReg := CntReg + 1.U
+      
+      when(CntReg === io.MemPort(Producer).Len - 1.U){
+        CntReg := 0.U
         CompleteDelayInternal := true.B
       }
-      .otherwise{
-        io.MemPort(Producer).ReadData(0) := rdwrPort(0)
-        CompleteDelayInternal := true.B
+
+      when(CntReg === 0.U){
+        when (io.MemPort(Producer).WriteEn) {
+          rdwrPort := io.MemPort(Producer).WriteData(CntReg)
+          //CompleteDelayInternal := true.B
+        }.otherwise{
+          //io.MemPort(Producer).ReadData(0) := rdwrPort(0)
+          //CompleteDelayInternal := true.B
+        }
+
+        CntReg := CntReg + 1.U
+      }.otherwise{
+        when (io.MemPort(Producer).WriteEn) {
+          rdwrPort := io.MemPort(Producer).WriteData(CntReg)
+          //CompleteDelayInternal := true.B
+        }.otherwise{
+          //io.MemPort(Producer).ReadData(0) := rdwrPort(0)
+
+          StorageReg(CntReg - 1.U) := rdwrPort
+          //CompleteDelayInternal := true.B
+        }
       }
   
     }.otherwise{ // External Memory

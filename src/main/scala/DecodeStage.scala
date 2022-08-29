@@ -32,8 +32,8 @@ class DecodeStage extends Module {
     val AImmediate = Output(UInt(13.W))
     val ASImmediate = Output(SInt(13.W))
     val AOperation = Output(UInt(4.W))
-    //val MemOp = Output(UInt(2.W))
-    //val MemAddress = Output(UInt(13.W))
+    val MemOp = Output(UInt(1.W))
+    val MemAddress = Output(UInt(15.W))
   })
 
   // Init
@@ -69,8 +69,8 @@ class DecodeStage extends Module {
   val VectorAImmediateReg = RegInit(0.U(13.W))
   val VectorASImmidiateReg = RegInit(0.S(13.W))
   val VectorAOperationReg = RegInit(0.U(4.W))
-  val VectorMemOpReg = RegInit(0.U(2.W))
-  val VectorMemAddressReg = RegInit(0.U(13.W))
+  val VectorMemOpReg = RegInit(0.U(1.W))
+  val VectorMemAddressReg = RegInit(0.U(15.W))
 
 
   // Logic
@@ -106,8 +106,8 @@ class DecodeStage extends Module {
 
   VectorOut.AOperation := VectorAOperationReg
 
-  //VectorOut.MemOp := VectorMemOpReg
-  //VectorOut.MemAddress := VectorMemAddressReg
+  VectorOut.MemOp := VectorMemOpReg
+  VectorOut.MemAddress := VectorMemAddressReg
 
  
   when(!io.Stall){

@@ -35,8 +35,8 @@ class ExecuteStage(Lanes: Int) extends Module {
     val AImmediate = Input(UInt(13.W))
     val ASImmediate = Input(SInt(13.W))
     val AOperation = Input(UInt(4.W))
-    //val MemOp = Input(UInt(2.W))
-    //val MemAddress = Input(UInt(13.W))
+    val MemOp = Input(UInt(1.W))
+    val MemAddress = Input(UInt(15.W))
   })
   val Out = IO(new Bundle {
     val WritebackMode = Output(UInt(4.W))
@@ -63,7 +63,6 @@ class ExecuteStage(Lanes: Int) extends Module {
   for(i <- 0 until 16){
     io.MemPort.WriteData(i) := 0.U
   }
-
 
   io.Stall := false.B
 
@@ -175,7 +174,6 @@ class ExecuteStage(Lanes: Int) extends Module {
   }
 
   // Logic
-
   
   switch(In.Type){
     is(0.U){
@@ -279,12 +277,12 @@ class ExecuteStage(Lanes: Int) extends Module {
 
         ALU.io.rs2 := 0.U
 
-        val upper = Wire(UInt(9.W))
-        upper := In.AImmediate(8,0)
-        val lower = Wire(UInt(9.W))
+        val upper = Wire(UInt(12.W))
+        upper := In.AImmediate
+        val lower = Wire(UInt(12.W))
         //lower := io.x(I n.rd)(8,0)
-        lower := rd(8,0)
-        val cat = Wire(UInt(18.W))
+        lower := rd(11,0)
+        val cat = Wire(UInt(24.W))
         cat := Cat(upper,lower)
 
         ALU.io.rs1 := cat
@@ -386,6 +384,30 @@ class ExecuteStage(Lanes: Int) extends Module {
       when(!VALU.io.Completed){
         io.Stall := true.B
       }
+    }
+    is(6.U){
+      io.MemPort.Address := VectorIn.MemAddress
+      io.MemPort.WriteData := vio.vx(VectorIn.vrs1)
+      io.MemPort.Enable := true.B
+      io.MemPort.WriteEn := In.MemOp
+      io.MemPort.Len := vio.len
+
+      switch(VectorIn.MemOp){
+        is(0.U){
+          WritebackMode := vMemoryI
+          DataHazard := In.rd
+        }
+        is(1.U){
+          WritebackMode := Nil
+        }
+      }
+
+      when(!io.MemPort.Completed){
+        io.Stall := true.B
+      }
+
+      WritebackRegister := In.rd
+
     }
 
     /*

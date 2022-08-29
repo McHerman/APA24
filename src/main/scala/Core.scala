@@ -64,8 +64,6 @@ class Core(Program: String, Lanes: Int) extends Module {
   ExecuteStage.vio.vx := vx
   ExecuteStage.vio.len := x(2)
 
-  ExecuteStage.VectorIn
-
   // Processor
 
   // Instruction Fetch
@@ -115,6 +113,9 @@ class Core(Program: String, Lanes: Int) extends Module {
     }
     is(vArithmetic){
       vx(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.VALUOut
+    }
+    is(vMemoryI){
+      vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
     }
   }
 }

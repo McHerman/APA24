@@ -37,8 +37,8 @@ class InstuctionDecoder() extends Module {
 
     val AOperation = Output(UInt(4.W))
 
-    val MemOp = Output(UInt(2.W))
-    val MemAddress = Output(UInt(13.W))
+    val MemOp = Output(UInt(1.W))
+    val MemAddress = Output(UInt(15.W))
   })
 
   io.Type := io.Instruction(23,21)
@@ -108,10 +108,9 @@ class InstuctionDecoder() extends Module {
       VectorIO.ASImmediate := io.Instruction(12,0).asSInt
     }
     is(6.U){
-      VectorIO.AOperation := io.Instruction(20,17)
-      VectorIO.vrd := io.Instruction(16,13)
-      VectorIO.vrs1 := io.Instruction(12,9)
-      VectorIO.rs := io.Instruction(8,4)
+      VectorIO.MemOp := io.Instruction(20,19)
+      VectorIO.vrd := io.Instruction(18,15)
+      VectorIO.MemAddress := io.Instruction(14,0)
     }
 
     /*
