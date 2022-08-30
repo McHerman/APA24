@@ -1,6 +1,6 @@
 <APA24>
   <Core top="true" id="0">
-    <Program>Distortion</Program>
+    <Program>Bitcrusher</Program>
     <Inputs>
       <Input node="In"/>
     </Inputs>

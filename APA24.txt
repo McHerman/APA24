@@ -1,0 +1,179 @@
+tinyISA2
+
+24 bit RISC istruction-set
+
+23,21 = Type
+
+///////////////////////
+Scalar Type
+///////////////////////
+
+Type S1 
+20,17 = Operation 
+16,12 = Write Register 
+11,7 = Read Register 1
+6,2 = Read Register 2
+
+add rd, rs1, rs2
+sub rd, rs1, rs2
+mult rd, rs1, rs2
+sll rd, rs1, rs2
+srl rd, rs1, rs2
+sla rd, rs1, rs2
+sra rd, rs1, rs2
+and rd, rs1, rs2
+or rd, rs1, rs2
+xor rd, rs1, rs2
+fpmul rd, rs1, rs2 
+mac rd, rs1, rs2
+
+lw rd, rs1
+sw rd, rs1
+
+Extra bits = 1
+
+////////////////////
+
+Type S2
+
+20,17 = Operation
+16,12 = Register
+11,0 = Immediate value
+
+
+addi rd, imm // Signed
+li rd, imm
+lui rd, imm 
+
+lwi rd, imm address
+lswi rd, imm address
+
+Extra bits = 1 
+
+////////////////////
+
+Type S3
+
+20 = Operation, Read/Write
+19,15 = Read/Write register
+14,0 = Memory Address
+
+lwi rd, imm address
+swi rd, imm address 
+
+Extra bits = 0
+
+////////////////////
+
+Type S4
+
+20,19 = Operation
+18,14 = Read Register 1
+13,9 = Read Register 2
+8,0 = Immediate jump value // Signed
+
+beq rs1, rs2, offset
+bne rs1, rs2, offset
+bge rs1, rs2, offset
+blt rs1, rs2, offset
+
+Extra bits = 0
+
+////////////////////
+Vector Type
+////////////////////
+
+Type V1
+
+20,17 = Operation
+16,14 = vrd 
+13,11 = vrs1  
+10,8 = vrs2 
+
+Extra bits = 8
+
+add vrd, vrs1, vrs2
+sub vrd, vrs1, vrs2
+mult vrd, vrs1, vrs2
+sll vrd, vrs1, vrs2
+srl vrd, vrs1, vrs2
+sla vrd, vrs1, vrs2
+sra vrd, vrs1, vrs2
+and vrd, vrs1, vrs2
+or vrd, vrs1, vrs2
+xor vrd, vrs1, vrs2
+fpmul vrd, vrs1, vrs2 
+mac vrd, vrs1, vrs2
+
+
+////////////////////
+
+Type V2
+
+20,17 = Operation
+16,12 = vrd 
+11,0 = Immediate
+
+extra bits = 2
+
+////////////////////
+
+Type V3
+
+20,19 = Operation
+18,16 = vrd 
+15,0 = Address
+
+extra bits = 0
+
+////////////////////
+
+Type V4
+
+20,17 = Operation
+16,13 = vrd 
+12,9 = vrs1
+8,4 = rs2
+
+extra bits = 4
+
+////////////////////
+
+
+
+Scalar Registers
+
+x0 = 0.U hardcoded 
+x1 = Program Counter    
+x2 = Vlen
+x3 = Input
+x4 = Output 
+x4 = Temp
+x5 = Temp 
+x6 = Temp 
+x7 = Temp 
+x8 = Temp 		
+x9 = Temp
+x10 = Temp
+x11 = Temp 
+x12 = Temp 
+x13 = Temp 
+x14 = Temp 
+x15 = Temp 
+
+x16 = Temp
+x17 = Temp
+x18 = Temp
+x19 = Temp 
+x20 = Temp 
+x21 = Temp 
+x22 = Temp 		
+x23 = Temp
+x24 = Temp
+x25 = Temp 
+x26 = Temp 
+x27 = Temp 
+x28 = Temp 
+x29 = Temp 
+x30 = Temp
+x31 = Temp

@@ -1,0 +1,10 @@
+Datahazard protection on vector registers 
+Add vector registers to assembler 
+Test assembler
+Maybe expand ISA type field with 1 bit 
+Waveform testing
+
+
+Animate APA24 logo (very important)
+add Make 
+Expand xml config 

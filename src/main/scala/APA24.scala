@@ -5,6 +5,7 @@ import scala.xml._
 import java.io._
 import java.io.File
 import java.util.Arrays;
+import Assembler._
 
 class MemPort extends Bundle{
   val Address = Output(UInt(24.W))
@@ -43,6 +44,8 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
   var SPIRAM_Offset = (xml \\ "Core" \\ "DRAM" \\ "@offset").text.toInt  
   var Lanes = (xml \\ "Core" \\ "VALU" \\ "@lanes").text.toInt
 
+
+
   val io = IO(new Bundle {
     //val Sub_IO = new CAP_IO
     val In = Input(UInt(24.W))
@@ -56,7 +59,12 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
 
   // Single Core
 
-  val Core = Module(new Core(Program, Lanes))
+  replace_pseudo(Program);
+  demangle_identifiers(Program);
+  read_assembly(Program);
+
+
+  val Core = Module(new Core("Programs/MachineCode/" + Program, Lanes))
   val DataMemory = Module(new DataMemory(1, Memsize, SPIRAM_Offset))
 
   // IO
