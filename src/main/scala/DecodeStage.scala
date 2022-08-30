@@ -25,14 +25,14 @@ class DecodeStage extends Module {
   })
   val VectorOut = IO(new Bundle {
     val Type = Output(UInt(3.W))
-    val vrs1 = Output(UInt(4.W))
-    val vrs2 = Output(UInt(4.W))
+    val vrs1 = Output(UInt(3.W))
+    val vrs2 = Output(UInt(3.W))
     val rs = Output(UInt(5.W))
-    val vrd = Output(UInt(4.W))
-    val AImmediate = Output(UInt(13.W))
-    val ASImmediate = Output(SInt(13.W))
+    val vrd = Output(UInt(3.W))
+    val AImmediate = Output(UInt(12.W))
+    val ASImmediate = Output(SInt(12.W))
     val AOperation = Output(UInt(4.W))
-    val MemOp = Output(UInt(1.W))
+    val MemOp = Output(UInt(2.W))
     val MemAddress = Output(UInt(15.W))
   })
 
@@ -44,9 +44,9 @@ class DecodeStage extends Module {
 
   val AddressReg = RegInit(0.U(10.W))
   val TypeReg = RegInit(0.U(2.W))
-  val rs1Reg = RegInit(0.U(4.W))
-  val rs2Reg = RegInit(0.U(4.W))
-  val rdReg = RegInit(0.U(4.W))
+  val rs1Reg = RegInit(0.U(5.W))
+  val rs2Reg = RegInit(0.U(5.W))
+  val rdReg = RegInit(0.U(5.W))
 
   val AImmediateReg = RegInit(0.U(11.W))
   val ASImmediateReg = RegInit(0.S(11.W))
@@ -66,10 +66,10 @@ class DecodeStage extends Module {
   val VectorRs2Reg = RegInit(0.U(4.W))
   val vr_rsReg = RegInit(0.U(5.W))
   val VectorRdReg = RegInit(0.U(4.W))
-  val VectorAImmediateReg = RegInit(0.U(13.W))
-  val VectorASImmidiateReg = RegInit(0.S(13.W))
+  val VectorAImmediateReg = RegInit(0.U(12.W))
+  val VectorASImmidiateReg = RegInit(0.S(12.W))
   val VectorAOperationReg = RegInit(0.U(4.W))
-  val VectorMemOpReg = RegInit(0.U(1.W))
+  val VectorMemOpReg = RegInit(0.U(2.W))
   val VectorMemAddressReg = RegInit(0.U(15.W))
 
 

@@ -25,20 +25,20 @@ class InstuctionDecoder() extends Module {
 
   val VectorIO = IO(new Bundle {
     val Type = Output(UInt(3.W))
-    val vrs1 = Output(UInt(4.W))
-    val vrs2 = Output(UInt(4.W))
+    val vrs1 = Output(UInt(3.W))
+    val vrs2 = Output(UInt(3.W))
 
     val rs = Output(UInt(5.W))
 
-    val vrd = Output(UInt(4.W))
+    val vrd = Output(UInt(3.W))
 
-    val AImmediate = Output(UInt(13.W))
-    val ASImmediate = Output(SInt(13.W))
+    val AImmediate = Output(UInt(12.W))
+    val ASImmediate = Output(SInt(12.W))
 
     val AOperation = Output(UInt(4.W))
 
-    val MemOp = Output(UInt(1.W))
-    val MemAddress = Output(UInt(15.W))
+    val MemOp = Output(UInt(2.W))
+    val MemAddress = Output(UInt(16.W))
   })
 
   io.Type := io.Instruction(23,21)
@@ -103,25 +103,21 @@ class InstuctionDecoder() extends Module {
     }
     is(5.U){
       VectorIO.AOperation := io.Instruction(20,17)
-      VectorIO.vrd := io.Instruction(16,13)
-      VectorIO.AImmediate := io.Instruction(12,0)
-      VectorIO.ASImmediate := io.Instruction(12,0).asSInt
+      VectorIO.vrd := io.Instruction(16,14)
+      VectorIO.AImmediate := io.Instruction(13,2)
+      VectorIO.ASImmediate := io.Instruction(13,2).asSInt
     }
     is(6.U){
       VectorIO.MemOp := io.Instruction(20,19)
-      VectorIO.vrd := io.Instruction(18,15)
-      VectorIO.MemAddress := io.Instruction(14,0)
+      VectorIO.vrd := io.Instruction(18,16)
+      VectorIO.MemAddress := io.Instruction(15,0)
     }
-
-    /*
-
     is(7.U){
-      VectorIO.COperation := io.Instruction(15,14)
-      VectorIO.rs1 := io.Instruction(13,10)
-      VectorIO.rs2 := io.Instruction(9,6)
-      VectorIO.COffset := io.Instruction(5,0).asSInt
+      VectorIO.AOperation := io.Instruction(20,17)
+      VectorIO.vrd := io.Instruction(16,14)
+      VectorIO.vrs1 := io.Instruction(13,11)
+      //VectorIO.vrs2 := io.Instruction(12,8)
+      VectorIO.rs := io.Instruction(10,6)
     }
-
-    */
   }
 }

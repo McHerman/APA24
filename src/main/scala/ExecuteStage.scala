@@ -15,28 +15,28 @@ class ExecuteStage(Lanes: Int) extends Module {
   })
   val In = IO(new Bundle {
     val Type = Input(UInt(2.W))
-    val rs1 = Input(UInt(4.W))
-    val rs2 = Input(UInt(4.W))
-    val rd = Input(UInt(4.W))
+    val rs1 = Input(UInt(5.W))
+    val rs2 = Input(UInt(5.W))
+    val rd = Input(UInt(5.W))
     val AImmediate = Input(UInt(11.W))
     val ASImmediate = Input(SInt(11.W))
     val AOperation = Input(UInt(4.W))
     val MemOp = Input(UInt(1.W))
-    val MemAddress = Input(UInt(11.W))
+    val MemAddress = Input(UInt(14.W))
     val COperation = Input(UInt(2.W))
-    val COffset = Input(SInt(6.W))
+    val COffset = Input(SInt(9.W))
   })
   val VectorIn = IO(new Bundle {
     val Type = Input(UInt(3.W))
-    val vrs1 = Input(UInt(4.W))
-    val vrs2 = Input(UInt(4.W))
+    val vrs1 = Input(UInt(3.W))
+    val vrs2 = Input(UInt(3.W))
     val rs = Input(UInt(5.W))
-    val vrd = Input(UInt(4.W))
-    val AImmediate = Input(UInt(13.W))
-    val ASImmediate = Input(SInt(13.W))
+    val vrd = Input(UInt(3.W))
+    val AImmediate = Input(UInt(12.W))
+    val ASImmediate = Input(SInt(12.W))
     val AOperation = Input(UInt(4.W))
     val MemOp = Input(UInt(1.W))
-    val MemAddress = Input(UInt(15.W))
+    val MemAddress = Input(UInt(16.W))
   })
   val Out = IO(new Bundle {
     val WritebackMode = Output(UInt(4.W))
@@ -409,19 +409,27 @@ class ExecuteStage(Lanes: Int) extends Module {
       WritebackRegister := In.rd
 
     }
-
-    /*
-
-
-    is(6.U){
-
-
-    }
     is(7.U){
+      VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
+
+      for(i <- 0 until 16){
+        VALU.io.vrs2(i) := io.x(VectorIn.rs)
+      }
+
+      //VALU.io.vrs2 := vio.vx(VectorIn.vrs2)
+
+      VALU.io.Operation := In.AOperation
+
+      WritebackMode := vArithmetic
+      WritebackRegister := VectorIn.vrd
+
+      DataHazard := VectorIn.vrd
+
+      when(!VALU.io.Completed){
+        io.Stall := true.B
+      }
 
 
     }
-
-    */
   }
 }
