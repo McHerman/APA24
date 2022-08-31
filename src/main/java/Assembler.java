@@ -218,10 +218,293 @@ public class Assembler {
 
                 */
 
-        if(instruction.contains("add") && !instruction.contains("addi")){
+        if(instruction.contains("vadd") && !instruction.contains("vaddi")){
+            int type = 4;
+            int op = 0;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsub")){
+            //val = 0b000001000000000000;
+            int type = 4;
+            int op = 1;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vmult")){
+            //val = 0b000010000000000000;
+            int type = 4;
+            int op = 2;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsll")){
+            //val = 0b000011000000000000;
+            int type = 4;
+            int op = 3;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsrl")){
+            //val = 0b000100000000000000;
+            int type = 4;
+            int op = 4;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsla")){
+            //val = 0b000101000000000000;
+            int type = 4;
+            int op = 5;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsra")){
+            //val = 0b000110000000000000;
+            int type = 4;
+            int op = 6;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vand")){
+            //val = 0b000111000000000000;
+            int type = 4;
+            int op = 7;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vor") && !instruction.contains("vxor")){
+            //val = 0b001000000000000000;
+            int type = 4;
+            int op = 8;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vxor")){
+            //val = 0b001001000000000000;
+            int type = 4;
+            int op = 9;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction.replace("xor", "or"),0));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vfpmul")){
+            //val = 0b001010000000000000;
+            int type = 4;
+            int op = 10;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+
+        // Vector Immediate
+
+
+        else if(instruction.contains("vaddi")){
+            //val = 0b010000000000000000;
+            int type = 5;
+            int op = 0;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vli")){
+            //val = 0b010100000000000000;
+            int type = 5;
+            int op = 1;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vlui")){
+            //val = 0b011000000000000000;
+            int type = 5;
+            int op = 2;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+        
+
+        // Vector memory 
+
+
+        else if(instruction.contains("vlwi")){
+            //val = 0b100000000000000000;
+            int type = 6;
+            int op = 0;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 20);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vswi")){
+            //val = 0b101000000000000000;
+            int type = 6;
+            int op = 1;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 19);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        // Vector Scalar 
+
+        if(instruction.contains("vsadd") && !instruction.contains("vaddi")){
+            int type = 7;
+            int op = 0;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vssub")){
+            //val = 0b000001000000000000;
+            int type = 7;
+            int op = 1;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsmult")){
+            //val = 0b000010000000000000;
+            int type = 7;
+            int op = 2;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vssll")){
+            //val = 0b000011000000000000;
+            int type = 7;
+            int op = 3;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vssrl")){
+            //val = 0b000100000000000000;
+            int type = 7;
+            int op = 4;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vssla")){
+            //val = 0b000101000000000000;
+            int type = 7;
+            int op = 5;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vssra")){
+            //val = 0b000110000000000000;
+            int type = 7;
+            int op = 6;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsand")){
+            //val = 0b000111000000000000;
+            int type = 7;
+            int op = 7;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsor") && !instruction.contains("vxor")){
+            //val = 0b001000000000000000;
+            int type = 7;
+            int op = 8;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsxor")){
+            //val = 0b001001000000000000;
+            int type = 7;
+            int op = 9;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction.replace("xor", "or"),0));
+            //System.out.println(val);
+        }
+
+        else if(instruction.contains("vsfpmul")){
+            //val = 0b001010000000000000;
+            int type = 7;
+            int op = 10;
+            val = 0b000000000000000000000000 | (type << 21);
+            val = val | (op << 17);
+            val = (val | find_arguments(instruction,type));
+            //System.out.println(val);
+        }
+
+
+
+
+        // Scalar RR arithmetic 
+
+        else if(instruction.contains("add") && !instruction.contains("addi")){
             int type = 0;
             int op = 0;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -231,7 +514,7 @@ public class Assembler {
             //val = 0b000001000000000000;
             int type = 0;
             int op = 1;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -241,7 +524,7 @@ public class Assembler {
             //val = 0b000010000000000000;
             int type = 0;
             int op = 2;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -251,7 +534,7 @@ public class Assembler {
             //val = 0b000011000000000000;
             int type = 0;
             int op = 3;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -261,7 +544,7 @@ public class Assembler {
             //val = 0b000100000000000000;
             int type = 0;
             int op = 4;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -271,7 +554,7 @@ public class Assembler {
             //val = 0b000101000000000000;
             int type = 0;
             int op = 5;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -281,7 +564,7 @@ public class Assembler {
             //val = 0b000110000000000000;
             int type = 0;
             int op = 6;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -291,7 +574,7 @@ public class Assembler {
             //val = 0b000111000000000000;
             int type = 0;
             int op = 7;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -301,7 +584,7 @@ public class Assembler {
             //val = 0b001000000000000000;
             int type = 0;
             int op = 8;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -311,7 +594,7 @@ public class Assembler {
             //val = 0b001001000000000000;
             int type = 0;
             int op = 9;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction.replace("xor", "or"),0));
             //System.out.println(val);
@@ -321,7 +604,7 @@ public class Assembler {
             //val = 0b001010000000000000;
             int type = 0;
             int op = 10;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -331,7 +614,7 @@ public class Assembler {
             //val = 0b001011000000000000;
             int type = 0;
             int op = 11;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -341,7 +624,7 @@ public class Assembler {
             //val = 0b001100000000000000;
             int type = 0;
             int op = 12;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -351,7 +634,7 @@ public class Assembler {
             //val = 0b001101000000000000;
             int type = 0;
             int op = 13;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -369,7 +652,7 @@ public class Assembler {
             //val = 0b010000000000000000;
             int type = 1;
             int op = 0;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -379,7 +662,7 @@ public class Assembler {
             //val = 0b010100000000000000;
             int type = 1;
             int op = 1;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -389,7 +672,7 @@ public class Assembler {
             //val = 0b011000000000000000;
             int type = 1;
             int op = 2;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 17);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -404,7 +687,7 @@ public class Assembler {
             //val = 0b100000000000000000;
             int type = 2;
             int op = 0;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 20);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -414,7 +697,7 @@ public class Assembler {
             //val = 0b101000000000000000;
             int type = 2;
             int op = 1;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 20);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -430,7 +713,7 @@ public class Assembler {
             //val = 0b110000000000000000;
             int type = 3;
             int op = 0;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 19);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -440,7 +723,7 @@ public class Assembler {
             //val = 0b110100000000000000;
             int type = 3;
             int op = 1;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 19);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -450,7 +733,7 @@ public class Assembler {
             //val = 0b111000000000000000;
             int type = 3;
             int op = 2;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 19);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
@@ -460,41 +743,13 @@ public class Assembler {
             //val = 0b111100000000000000;
             int type = 3;
             int op = 3;
-            val = 0b000000000000000000000000 | (type << 20);
+            val = 0b000000000000000000000000 | (type << 21);
             val = val | (op << 19);
             val = (val | find_arguments(instruction,type));
             //System.out.println(val);
         }
 
-        // Vector Instructions 
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        // Vector Instructions
 
         return val;
     }
@@ -564,18 +819,78 @@ public class Assembler {
 
                 //System.out.println(rs2);
                 return (rs1 << 14) + (rs2 << 9) + (offset & 0b111111111);
+            case 4:
+                rd_index = instruction.indexOf("x");
+                rd = find_register(instruction.substring(rd_index, rd_index + 3));
+
+                rs1_index = instruction.indexOf("x", rd_index + 1);
+
+                rs1 = find_register(instruction.substring(rs1_index, rs1_index + 3));
+
+                rs2_index = instruction.indexOf("x", rs1_index + 1);
+                rs2 = find_register(instruction.substring(rs2_index));
+
+                /*
+
+                System.out.println(rd_index);
+                System.out.println(rd);
+                System.out.println(rs1_index);
+                System.out.println(rs1);
+                System.out.println(rs2_index);
+                System.out.println(rs2);
+
+                */
+                    
+
+                return (rd << 14) + (rs1 << 11) + (rs2 << 8);
+            case 5:
+                rd_index = instruction.indexOf("x");
+                rd = find_register(instruction.substring(rd_index, rd_index + 3).replace(" ", ""));
+
+                imm = find_register(instruction.substring(rd_index + 3));
+
+                if(instruction.contains("addi") && instruction.contains("-")){
+                    imm = -imm;
+                }
+
+                return (rd << 12) + (imm & 0b111111111111);
+            case 6:
+                rd_index = instruction.indexOf("x");
+                rd = find_register(instruction.substring(rd_index, rd_index + 3).replace(" ", ""));
+
+                imm2 = find_register(instruction.substring(rd_index + 3));
+
+                System.out.println(imm2);
+
+                return (rd << 17) + ((imm2 & 0b1111111111111111) << 1);
+
+            case 7:
+                rd_index = instruction.indexOf("x");
+                rd = find_register(instruction.substring(rd_index, rd_index + 3));
+
+                rs1_index = instruction.indexOf("x", rd_index + 1);
+
+                rs1 = find_register(instruction.substring(rs1_index, rs1_index + 3));
+
+                rs2_index = instruction.indexOf("x", rs1_index + 1);
+                rs2 = find_register(instruction.substring(rs2_index));
+
+                /*
+
+                System.out.println(rd_index);
+                System.out.println(rd);
+                System.out.println(rs1_index);
+                System.out.println(rs1);
+                System.out.println(rs2_index);
+                System.out.println(rs2);
+
+                */
+                    
+
+                return (rd << 13) + (rs1 << 9) + (rs2 << 4);
         }
+
         return val;
-    }
-
-    public int return_machine_code(){
-        int machine_code = 0;
-
-        //if else tree, which first looks at the instruction type >>15
-        //sum of the different functions...
-        //java should be able to read the value of the imm_val easily...
-
-        return machine_code;
     }
 
     public static int find_register(String instruction){

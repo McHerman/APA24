@@ -99,7 +99,7 @@ class ExecuteStage(Lanes: Int) extends Module {
   val DataHazard = RegInit(0.U(5.W))
   val VectorDataHazard = RegInit(0.U(3.W))
 
-  val rs1 = Wire(UInt(24.W))1q
+  val rs1 = Wire(UInt(24.W))
   val rs2 = Wire(UInt(24.W))
   val rd = Wire(UInt(24.W))
 

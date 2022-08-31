@@ -120,11 +120,11 @@ extra bits = 2
 
 Type V3
 
-20,19 = Operation
-18,16 = vrd 
-15,0 = Address
+20 = Operation
+19,17 = vrd 
+16,1 = Address
 
-extra bits = 0
+extra bits = 1
 
 ////////////////////
 
