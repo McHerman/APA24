@@ -466,6 +466,36 @@ public class Assembler {
             //System.out.println(val);
         }
 
+        // Vector Instructions 
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         return val;
     }
 

@@ -89,18 +89,25 @@ class ExecuteStage(Lanes: Int) extends Module {
 
   val WritebackMode = RegInit(0.U(4.W))
   val WritebackRegister = RegInit(0.U(4.W))
-  val ALUOutReg = RegInit(0.U(18.W))
+  val ALUOutReg = RegInit(0.U(24.W))
   val COffsetReg = RegInit(0.U(6.W))
 
   //VALU Registers
 
   val VALUOutReg = Reg(Vec(16,UInt(24.W)))
 
-  val DataHazard = RegInit(0.U(4.W))
+  val DataHazard = RegInit(0.U(5.W))
+  val VectorDataHazard = RegInit(0.U(3.W))
 
-  val rs1 = Wire(UInt(18.W))
-  val rs2 = Wire(UInt(18.W))
-  val rd = Wire(UInt(18.W))
+  val rs1 = Wire(UInt(24.W))
+  val rs2 = Wire(UInt(24.W))
+  val rd = Wire(UInt(24.W))
+
+  val vrs1 = Wire(Vec(16,UInt(24.W)))
+  val vrs2 = Wire(Vec(16,UInt(24.W)))
+  val vrd = Wire(Vec(16,UInt(24.W)))
+  val vrs = Wire(UInt(24.W))
+  
 
   val swStall = RegInit(0.U(1.W))
   val lwStall = RegInit(0.U(1.W))
@@ -110,6 +117,11 @@ class ExecuteStage(Lanes: Int) extends Module {
   rs1 := io.x(In.rs1)
   rs2 := io.x(In.rs2)
   rd := io.x(In.rd)
+
+  vrs1 := vio.vx(VectorIn.vrs1)
+  vrs2 := vio.vx(VectorIn.vrs2)
+  vrd := vio.vx(VectorIn.vrd)
+  vrs := io.x(VectorIn.rs)
 
   // If the current instructions uses the result of a previous calculation, that isnt written to the register
   // the following code fetches the result from the internal pipeline registers
@@ -156,13 +168,65 @@ class ExecuteStage(Lanes: Int) extends Module {
     }
   }
 
+  // Vector Datahazard
+
+  when(VectorIn.vrs1 === VectorDataHazard){
+    switch(WritebackMode){
+      is(vArithmetic){
+        vrs1 := VALUOutReg
+      }
+      is(vMemoryI){
+        vrs1 := io.MemPort.ReadData
+      }
+    }
+  }
+
+  when(VectorIn.vrs2 === VectorDataHazard){
+    switch(WritebackMode){
+      is(vArithmetic){
+        vrs2 := VALUOutReg
+      }
+      is(vMemoryI){
+        vrs2 := io.MemPort.ReadData
+      }
+    }
+  }
+
+  when(VectorIn.vrd === VectorDataHazard){
+    switch(WritebackMode){
+      is(vArithmetic){
+        vrd := VALUOutReg
+      }
+      is(vMemoryI){
+        vrd := io.MemPort.ReadData
+      }
+    }
+  }
+
+  when(VectorIn.rs === DataHazard){
+    switch(WritebackMode){
+      is(Arithmetic){
+        vrs := ALUOutReg
+      }
+      is(ImmidiateArithmetic){
+        vrs := ALUOutReg
+      }
+      is(MemoryI){
+        vrs := io.MemPort.ReadData(0)
+      }
+    }
+  }
+
+
   Out.ALUOut := ALUOutReg
-  Out.VALUOut := VALU.io.Out
+  //Out.VALUOut := VALU.io.Out
+  Out.VALUOut := VALUOutReg
   Out.WritebackMode := WritebackMode
   Out.WritebackRegister := WritebackRegister
   Out.JumpValue := COffsetReg
 
   ALUOutReg := ALU.io.Out
+  VALUOutReg := VALU.io.Out
 
   // Clear overwrites registers
 
@@ -212,6 +276,7 @@ class ExecuteStage(Lanes: Int) extends Module {
 
         // Was causing combinational loop 
 
+      
         when(In.rs1 === DataHazard && In.rs1 =/= 0.U){
           switch(WritebackMode){
             is(Arithmetic){
@@ -353,23 +418,28 @@ class ExecuteStage(Lanes: Int) extends Module {
     // Vector
 
     is(4.U){
-      VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
-      VALU.io.vrs2 := vio.vx(VectorIn.vrs2)
+      //VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
+      //VALU.io.vrs2 := vio.vx(VectorIn.vrs2)
+
+      VALU.io.vrs1 := vrs1
+      VALU.io.vrs1 := vrs2
 
       VALU.io.Operation := In.AOperation
 
       WritebackMode := vArithmetic
       WritebackRegister := VectorIn.vrd
 
-      DataHazard := VectorIn.vrd
+      VectorDataHazard := VectorIn.vrd
 
       when(!VALU.io.Completed){
         io.Stall := true.B
       }
     }
     is(5.U){
-      VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
-      //
+      //VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
+
+      VALU.io.vrs1 := vrs1
+
       for(i <- 0 until 16){
         VALU.io.vrs2(i) := VectorIn.AImmediate
       }
@@ -379,7 +449,7 @@ class ExecuteStage(Lanes: Int) extends Module {
       WritebackMode := vArithmetic
       WritebackRegister := VectorIn.vrd
 
-      DataHazard := VectorIn.vrd
+      VectorDataHazard := VectorIn.vrd
 
       when(!VALU.io.Completed){
         io.Stall := true.B
@@ -387,7 +457,8 @@ class ExecuteStage(Lanes: Int) extends Module {
     }
     is(6.U){
       io.MemPort.Address := VectorIn.MemAddress
-      io.MemPort.WriteData := vio.vx(VectorIn.vrs1)
+      //io.MemPort.WriteData := vio.vx(VectorIn.vrs1)
+      io.MemPort.WriteData := vrs1
       io.MemPort.Enable := true.B
       io.MemPort.WriteEn := In.MemOp
       io.MemPort.Len := vio.len
@@ -395,7 +466,7 @@ class ExecuteStage(Lanes: Int) extends Module {
       switch(VectorIn.MemOp){
         is(0.U){
           WritebackMode := vMemoryI
-          DataHazard := In.rd
+          VectorDataHazard := VectorIn.vrd
         }
         is(1.U){
           WritebackMode := Nil
@@ -410,7 +481,8 @@ class ExecuteStage(Lanes: Int) extends Module {
 
     }
     is(7.U){
-      VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
+      //VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
+      VALU.io.vrs1 := vrs1
 
       for(i <- 0 until 16){
         VALU.io.vrs2(i) := io.x(VectorIn.rs)
@@ -423,7 +495,7 @@ class ExecuteStage(Lanes: Int) extends Module {
       WritebackMode := vArithmetic
       WritebackRegister := VectorIn.vrd
 
-      DataHazard := VectorIn.vrd
+      VectorDataHazard := VectorIn.vrd
 
       when(!VALU.io.Completed){
         io.Stall := true.B

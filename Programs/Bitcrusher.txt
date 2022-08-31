@@ -1,0 +1,5 @@
+.main:
+li x5, 49152
+.loop: 
+and x4, x3, x5 
+j .loop 

@@ -1,0 +1,4 @@
+li x5, 0 
+lui x5, 12
+and x4, x3, x5  
+li x1, 2

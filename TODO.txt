@@ -8,3 +8,4 @@ Waveform testing
 Animate APA24 logo (very important)
 add Make 
 Expand xml config 
+Maybe add cache
