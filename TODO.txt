@@ -1,8 +1,8 @@
 Datahazard protection on vector registers -Done 
 Add vector registers to assembler -Done 
 Test assembler -WIP 
-Change addi to uint and add subi
-Add add li to core 
+Change addi to uint and add subi -Done
+Add li to core -Done
 Maybe expand ISA type field with 1 bit 
 Waveform testing
 
@@ -11,3 +11,4 @@ Animate APA24 logo (very important)
 add Make 
 Expand xml config 
 Maybe add cache
+Maybe add memory preloading, fx add wavetable directly to mem without loads. 

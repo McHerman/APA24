@@ -250,257 +250,169 @@ public class Assembler {
 
         System.out.println(AssemblyInst + "*" + "\n");
 
-        /* 
-
         switch(AssemblyInst){
-            // Type S1
+
+            // Type S1 
 
             case "add":
                 val = machine_gen(0, 0, 17, instruction);
+                break;
             case "sub":
                 val = machine_gen(0, 1, 17, instruction);
+                break;
             case "mult":
                 val = machine_gen(0, 3, 17, instruction);
+                break;
             case "sll":
                 val = machine_gen(0, 4, 17, instruction);
+                break;
             case "srl":
                 val = machine_gen(0, 5, 17, instruction);
+                break;
             case "sla": 
                 val = machine_gen(0, 6, 17, instruction);
+                break;
             case "and": 
                 val = machine_gen(0, 7, 17, instruction);
+                break;
             case "or": 
                 val = machine_gen(0, 8, 17, instruction);
+                break;
             case "xor":
                 val = machine_gen(0, 9, 17, instruction);
+                break;
             case "fpmul":
                 val = machine_gen(0, 10, 17, instruction);
+                break;
             case "mac":
                 val = machine_gen(0, 11, 17, instruction);
+                break;
             case "lw":
                 val = machine_gen(0, 12, 17, instruction);
+                break;
             case "sw":
                 val = machine_gen(0, 13, 17, instruction);
+                break;
 
-            // Type S2    
 
-            case "addi":
-                val = machine_gen(1, 0, 17, instruction);
+            // Type S2 
+
+
             case "li":
-                val = machine_gen(1, 1, 17, instruction);
+                val = machine_gen(1, 0, 17, instruction);
+                break;
             case "liu": 
+                val = machine_gen(1, 1, 17, instruction);
+                break;
+            case "addi":
                 val = machine_gen(1, 2, 17, instruction);
+                break;    
+            case "subi":
+                val = machine_gen(1, 3, 17, instruction);
+                break;
+            case "multi":
+                val = machine_gen(1, 4, 17, instruction);
+                break;
+            case "slli":
+                val = machine_gen(1, 5, 17, instruction);
+                break;
+            case "srli":
+                val = machine_gen(1, 6, 17, instruction);
+                break;
+            case "slai": 
+                val = machine_gen(1, 7, 17, instruction);
+                break;
+            case "andi": 
+                val = machine_gen(1, 8, 17, instruction);
+                break;
+            case "ori": 
+                val = machine_gen(1, 9, 17, instruction);
+                break;
+            case "xori":
+                val = machine_gen(1, 10, 17, instruction);
+                break;
+            case "fpmuli":
+                val = machine_gen(1, 11, 17, instruction);
+                break;
 
-            // Type S3 
+
+            // Type S3
+
 
             case "lwi": 
                 val = machine_gen(2, 0, 20, instruction);
+                break;
             case "swi": 
                 val = machine_gen(2, 1, 20, instruction);
+                break;
 
 
             // Type S4
 
+
             case "beq": 
                 val = machine_gen(3, 0, 19, instruction);
+                break;
             case "bne": 
                 val = machine_gen(3, 1, 19, instruction); 
+                break;
             case "bge": 
                 val = machine_gen(3, 2, 19, instruction); 
+                break;
             case "blt": 
                 val = machine_gen(3, 3, 19, instruction); 
-            
+                break;
+
 
             // Type V1 
 
+
             case "vadd":
                 val = machine_gen(4, 0, 17, instruction);
+                break;
             case "vsub":
                 val = machine_gen(4, 1, 17, instruction);
+                break;
             case "vmult":
                 val = machine_gen(4, 3, 17, instruction);
+                break;
             case "vsll":
                 val = machine_gen(4, 4, 17, instruction);
+                break;
             case "vsrl":
                 val = machine_gen(4, 5, 17, instruction);
+                break;
             case "vsla": 
                 val = machine_gen(4, 6, 17, instruction);
+                break;
             case "vand": 
                 val = machine_gen(4, 7, 17, instruction);
+                break;
             case "vor": 
                 val = machine_gen(4, 8, 17, instruction);
+                break;
             case "vxor":
                 val = machine_gen(4, 9, 17, instruction);
+                break;
             case "vfpmul":
                 val = machine_gen(4, 10, 17, instruction);
+                break;
+
 
             // Type V2 
 
-            case "vaddi":
-                val = machine_gen(5, 0, 17, instruction);
-            case "vsubi":
-                val = machine_gen(5, 1, 17, instruction);
-            case "vmulti":
-                val = machine_gen(5, 3, 17, instruction);
-            case "vslli":
-                val = machine_gen(5, 4, 17, instruction);
-            case "vsrli":
-                val = machine_gen(5, 5, 17, instruction);
-            case "vslai": 
-                val = machine_gen(5, 6, 17, instruction);
-            case "vandi": 
-                val = machine_gen(5, 7, 17, instruction);
-            case "vori": 
-                val = machine_gen(5, 8, 17, instruction);
-            case "vxori":
-                val = machine_gen(5, 9, 17, instruction);
-            case "vfpmuli":
-                val = machine_gen(5, 10, 17, instruction);
-
-            // Type V3 
-
-            case "vlwi": 
-                val = machine_gen(6, 0, 20, instruction);
-            case "vswi": 
-                val = machine_gen(6, 1, 20, instruction);
-
-            // Type V4 
-
-            case "vsadd":
-                val = machine_gen(7, 0, 17, instruction);
-            case "vssub":
-                val = machine_gen(7, 1, 17, instruction);
-            case "vsmult":
-                val = machine_gen(7, 3, 17, instruction);
-            case "vssll":
-                val = machine_gen(7, 4, 17, instruction);
-            case "vssrl":
-                val = machine_gen(7, 5, 17, instruction);
-            case "vssla": 
-                val = machine_gen(7, 6, 17, instruction);
-            case "vsand": 
-                val = machine_gen(7, 7, 17, instruction);
-            case "vsor": 
-                val = machine_gen(7, 8, 17, instruction);
-            case "vsxor":
-                val = machine_gen(7, 9, 17, instruction);
-            case "vsfpmul":
-                val = machine_gen(7, 10, 17, instruction);
-
-        }
-
-        */
-
-        switch(AssemblyInst){
-            case "add":
-                val = machine_gen(0, 0, 17, instruction);
-                break;
-            case "sub":
-                val = machine_gen(0, 1, 17, instruction);
-                break;
-            case "mult":
-                val = machine_gen(0, 3, 17, instruction);
-                break;
-            case "sll":
-                val = machine_gen(0, 4, 17, instruction);
-                break;
-            case "srl":
-                val = machine_gen(0, 5, 17, instruction);
-                break;
-            case "sla": 
-                val = machine_gen(0, 6, 17, instruction);
-                break;
-            case "and": 
-                val = machine_gen(0, 7, 17, instruction);
-                break;
-            case "or": 
-                val = machine_gen(0, 8, 17, instruction);
-                break;
-            case "xor":
-                val = machine_gen(0, 9, 17, instruction);
-                break;
-            case "fpmul":
-                val = machine_gen(0, 10, 17, instruction);
-                break;
-            case "mac":
-                val = machine_gen(0, 11, 17, instruction);
-                break;
-            case "lw":
-                val = machine_gen(0, 12, 17, instruction);
-                break;
-            case "sw":
-                val = machine_gen(0, 13, 17, instruction);
-                break;
-            case "addi":
-                val = machine_gen(1, 0, 17, instruction);
-                break;
-            case "li":
-                val = machine_gen(1, 1, 17, instruction);
-                System.out.println("penis");
-                break;
-            case "liu": 
-                val = machine_gen(1, 2, 17, instruction);
-                break;
-            case "lwi": 
-                val = machine_gen(2, 0, 20, instruction);
-                break;
-            case "swi": 
-                val = machine_gen(2, 1, 20, instruction);
-                break;
-            case "beq": 
-                val = machine_gen(3, 0, 19, instruction);
-                break;
-            case "bne": 
-                val = machine_gen(3, 1, 19, instruction); 
-                break;
-            case "bge": 
-                val = machine_gen(3, 2, 19, instruction); 
-                break;
-            case "blt": 
-                val = machine_gen(3, 3, 19, instruction); 
-                break;
-            case "vadd":
-                val = machine_gen(4, 0, 17, instruction);
-                break;
-            case "vsub":
-                val = machine_gen(4, 1, 17, instruction);
-                break;
-            case "vmult":
-                val = machine_gen(4, 3, 17, instruction);
-                break;
-            case "vsll":
-                val = machine_gen(4, 4, 17, instruction);
-                break;
-            case "vsrl":
-                val = machine_gen(4, 5, 17, instruction);
-                break;
-            case "vsla": 
-                val = machine_gen(4, 6, 17, instruction);
-                break;
-            case "vand": 
-                val = machine_gen(4, 7, 17, instruction);
-                break;
-            case "vor": 
-                val = machine_gen(4, 8, 17, instruction);
-                break;
-            case "vxor":
-                val = machine_gen(4, 9, 17, instruction);
-                break;
-            case "vfpmul":
-                val = machine_gen(4, 10, 17, instruction);
-                break;
-            case "vaddi":
-                val = machine_gen(5, 0, 17, instruction);
-                break;
-            case "vsubi":
-                val = machine_gen(5, 1, 17, instruction);
-                break;
             case "vli":
-                val = machine_gen(5, 2, 17, instruction);
+                val = machine_gen(5, 0, 17, instruction);
                 break;
             case "vlui":
+                val = machine_gen(5, 1, 17, instruction);
+                break; 
+            case "vaddi":
+                val = machine_gen(5, 2, 17, instruction);
+                break;
+            case "vsubi":
                 val = machine_gen(5, 3, 17, instruction);
-                break;    
+                break;   
             case "vmulti":
                 val = machine_gen(5, 4, 17, instruction);
                 break;
@@ -525,12 +437,22 @@ public class Assembler {
             case "vfpmuli":
                 val = machine_gen(5, 11, 17, instruction);
                 break;
+
+
+            // Type V3
+
+
             case "vlwi": 
                 val = machine_gen(6, 0, 20, instruction);
                 break;
             case "vswi": 
                 val = machine_gen(6, 1, 20, instruction);
                 break;
+
+
+            // Type V4 
+
+
             case "vsadd":
                 val = machine_gen(7, 0, 17, instruction);
                 break;

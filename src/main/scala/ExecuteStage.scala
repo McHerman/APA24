@@ -329,14 +329,14 @@ class ExecuteStage(Lanes: Int) extends Module {
       }
     }
     is(1.U){
-      when(In.AOperation === 1.U){
+      when(In.AOperation === 0.U){
 
         // li 
 
         ALU.io.rs2 := 0.U
         ALU.io.rs1 := In.AImmediate
         ALU.io.Operation := 0.U
-      }.elsewhen(In.AOperation === 2.U){
+      }.elsewhen(In.AOperation === 1.U){
 
         // lui 
 
@@ -353,16 +353,10 @@ class ExecuteStage(Lanes: Int) extends Module {
         ALU.io.rs1 := cat
         ALU.io.Operation := 0.U
       }.otherwise{
-        when(In.ASImmediate < 0.S){
-          ALU.io.Operation := 1.U
-          ALU.io.rs2 := (0.S - In.ASImmediate).asUInt
-          ALU.io.rs1 := rd
+          ALU.io.rs2 := In.AImmediate.asUInt
+          ALU.io.rs1 := In.rs1
 
-        }.otherwise{
-          ALU.io.rs2 := In.ASImmediate.asUInt
-          ALU.io.rs1 := rd
-          ALU.io.Operation := 0.U
-        }
+          ALU.io.Operation := (In.AOperation - 2.U)
       }
       WritebackMode := Arithmetic
       WritebackRegister := In.rd
@@ -436,6 +430,9 @@ class ExecuteStage(Lanes: Int) extends Module {
       }
     }
     is(5.U){
+
+      /*
+
       //VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
 
       VALU.io.vrs1 := vrs1
@@ -454,6 +451,61 @@ class ExecuteStage(Lanes: Int) extends Module {
       when(!VALU.io.Completed){
         io.Stall := true.B
       }
+
+      */
+
+      when(In.AOperation === 0.U){
+
+        // li 
+
+        for(i <- 0 until 16){
+          VALU.io.vrs2(i) := 0.U
+          VALU.io.vrs1(i) := VectorIn.AImmediate
+        }
+
+        VALU.io.Operation := 0.U
+      }.elsewhen(In.AOperation === 1.U){
+
+        // lui 
+
+        for(i <- 0 until 16){
+          VALU.io.vrs2(i) := 0.U
+
+          val upper = Wire(UInt(12.W))
+          upper := In.AImmediate
+          val lower = Wire(UInt(12.W))
+          //lower := io.x(I n.rd)(8,0)
+          lower := vrd(i)(11,0)
+          val cat = Wire(UInt(24.W))
+          cat := Cat(upper,lower)
+
+          VALU.io.vrs1(i) := cat
+        }
+        
+        VALU.io.Operation := 0.U
+
+      }.otherwise{
+          //VALU.io.vrs2 := In.AImmediate.asUInt
+
+          for(i <- 0 until 16){
+            VALU.io.vrs2(i) := In.AImmediate.asUInt
+          }
+
+          VALU.io.vrs1 := vrs1
+
+          VALU.io.Operation := (In.AOperation - 2.U)
+
+      }
+
+      WritebackMode := vArithmetic
+      WritebackRegister := VectorIn.vrd
+
+      VectorDataHazard := VectorIn.vrd
+
+      when(!VALU.io.Completed){
+        io.Stall := true.B
+      }
+
     }
     is(6.U){
       io.MemPort.Address := VectorIn.MemAddress
