@@ -69,14 +69,26 @@ public class Assembler {
                             System.out.println(upper >> 9);
                             */
 
-                            myWriter.write("li x" + rd + ", " + lower + addedData + "\n");
-                            myWriter.write("lui x" + rd + ", " +  (upper >> 12) + "\n");
+                            if(data.contains("v")){
+                                myWriter.write("vli x" + rd + ", " + lower + addedData + "\n");
+                                myWriter.write("vlui x" + rd + ", " +  (upper >> 12) + "\n");
+                            }else{
+                                myWriter.write("li x" + rd + ", " + lower + addedData + "\n");
+                                myWriter.write("lui x" + rd + ", " +  (upper >> 12) + "\n");
+                            }
+
                             addedData = "";
                         }else{
-                            myWriter.write("li x" + rd + ", " + immediate + addedData + "\n");
+
+                            if(data.contains("v")){
+                                myWriter.write("vli x" + rd + ", " + immediate + addedData + "\n");
+                            }else{
+                                myWriter.write("li x" + rd + ", " + immediate + addedData + "\n");
+                            }
+
                             addedData = "";
                         }
-                    }else if((data.contains("sw") && data.contains("swi")) || (data.contains("lw") && data.contains("lwi"))){
+                    }else if((data.contains("sw") && data.contains("swi")) || (data.contains("lw") && data.contains("lwi") && !data.contains("v"))){
                         myWriter.write(data + ", x0" + addedData + "\n");
                         addedData = "";
                     }
@@ -186,7 +198,23 @@ public class Assembler {
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                myWriter.write(Integer.toHexString(find_name(data)) + "\n");
+                //System.out.println(data);¨
+                int penis = find_name(data);
+
+                /* 
+
+                System.out.println("penis: " + penis);
+
+
+                //System.out.println(penis);
+                System.out.println("String:" + Integer.toString(penis));
+                System.out.println("ex: " + String.format("0x%08X", penis));
+                System.out.println("Hex:" + Integer.toHexString(penis));
+            
+                */
+                
+                //myWriter.write(Integer.toHexString(find_name(data)) + "\n");
+                myWriter.write(Integer.toHexString(penis) + "\n");
             }
             myWriter.close();
             myReader.close();
@@ -218,540 +246,341 @@ public class Assembler {
 
                 */
 
-        if(instruction.contains("vadd") && !instruction.contains("vaddi")){
-            int type = 4;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
+        String AssemblyInst = instruction.substring(0, instruction.indexOf(" "));
+
+        System.out.println(AssemblyInst + "*" + "\n");
+
+        /* 
+
+        switch(AssemblyInst){
+            // Type S1
+
+            case "add":
+                val = machine_gen(0, 0, 17, instruction);
+            case "sub":
+                val = machine_gen(0, 1, 17, instruction);
+            case "mult":
+                val = machine_gen(0, 3, 17, instruction);
+            case "sll":
+                val = machine_gen(0, 4, 17, instruction);
+            case "srl":
+                val = machine_gen(0, 5, 17, instruction);
+            case "sla": 
+                val = machine_gen(0, 6, 17, instruction);
+            case "and": 
+                val = machine_gen(0, 7, 17, instruction);
+            case "or": 
+                val = machine_gen(0, 8, 17, instruction);
+            case "xor":
+                val = machine_gen(0, 9, 17, instruction);
+            case "fpmul":
+                val = machine_gen(0, 10, 17, instruction);
+            case "mac":
+                val = machine_gen(0, 11, 17, instruction);
+            case "lw":
+                val = machine_gen(0, 12, 17, instruction);
+            case "sw":
+                val = machine_gen(0, 13, 17, instruction);
+
+            // Type S2    
+
+            case "addi":
+                val = machine_gen(1, 0, 17, instruction);
+            case "li":
+                val = machine_gen(1, 1, 17, instruction);
+            case "liu": 
+                val = machine_gen(1, 2, 17, instruction);
+
+            // Type S3 
+
+            case "lwi": 
+                val = machine_gen(2, 0, 20, instruction);
+            case "swi": 
+                val = machine_gen(2, 1, 20, instruction);
+
+
+            // Type S4
+
+            case "beq": 
+                val = machine_gen(3, 0, 19, instruction);
+            case "bne": 
+                val = machine_gen(3, 1, 19, instruction); 
+            case "bge": 
+                val = machine_gen(3, 2, 19, instruction); 
+            case "blt": 
+                val = machine_gen(3, 3, 19, instruction); 
+            
+
+            // Type V1 
+
+            case "vadd":
+                val = machine_gen(4, 0, 17, instruction);
+            case "vsub":
+                val = machine_gen(4, 1, 17, instruction);
+            case "vmult":
+                val = machine_gen(4, 3, 17, instruction);
+            case "vsll":
+                val = machine_gen(4, 4, 17, instruction);
+            case "vsrl":
+                val = machine_gen(4, 5, 17, instruction);
+            case "vsla": 
+                val = machine_gen(4, 6, 17, instruction);
+            case "vand": 
+                val = machine_gen(4, 7, 17, instruction);
+            case "vor": 
+                val = machine_gen(4, 8, 17, instruction);
+            case "vxor":
+                val = machine_gen(4, 9, 17, instruction);
+            case "vfpmul":
+                val = machine_gen(4, 10, 17, instruction);
+
+            // Type V2 
+
+            case "vaddi":
+                val = machine_gen(5, 0, 17, instruction);
+            case "vsubi":
+                val = machine_gen(5, 1, 17, instruction);
+            case "vmulti":
+                val = machine_gen(5, 3, 17, instruction);
+            case "vslli":
+                val = machine_gen(5, 4, 17, instruction);
+            case "vsrli":
+                val = machine_gen(5, 5, 17, instruction);
+            case "vslai": 
+                val = machine_gen(5, 6, 17, instruction);
+            case "vandi": 
+                val = machine_gen(5, 7, 17, instruction);
+            case "vori": 
+                val = machine_gen(5, 8, 17, instruction);
+            case "vxori":
+                val = machine_gen(5, 9, 17, instruction);
+            case "vfpmuli":
+                val = machine_gen(5, 10, 17, instruction);
+
+            // Type V3 
+
+            case "vlwi": 
+                val = machine_gen(6, 0, 20, instruction);
+            case "vswi": 
+                val = machine_gen(6, 1, 20, instruction);
+
+            // Type V4 
+
+            case "vsadd":
+                val = machine_gen(7, 0, 17, instruction);
+            case "vssub":
+                val = machine_gen(7, 1, 17, instruction);
+            case "vsmult":
+                val = machine_gen(7, 3, 17, instruction);
+            case "vssll":
+                val = machine_gen(7, 4, 17, instruction);
+            case "vssrl":
+                val = machine_gen(7, 5, 17, instruction);
+            case "vssla": 
+                val = machine_gen(7, 6, 17, instruction);
+            case "vsand": 
+                val = machine_gen(7, 7, 17, instruction);
+            case "vsor": 
+                val = machine_gen(7, 8, 17, instruction);
+            case "vsxor":
+                val = machine_gen(7, 9, 17, instruction);
+            case "vsfpmul":
+                val = machine_gen(7, 10, 17, instruction);
+
         }
 
-        else if(instruction.contains("vsub")){
-            //val = 0b000001000000000000;
-            int type = 4;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vmult")){
-            //val = 0b000010000000000000;
-            int type = 4;
-            int op = 2;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsll")){
-            //val = 0b000011000000000000;
-            int type = 4;
-            int op = 3;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsrl")){
-            //val = 0b000100000000000000;
-            int type = 4;
-            int op = 4;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsla")){
-            //val = 0b000101000000000000;
-            int type = 4;
-            int op = 5;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsra")){
-            //val = 0b000110000000000000;
-            int type = 4;
-            int op = 6;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vand")){
-            //val = 0b000111000000000000;
-            int type = 4;
-            int op = 7;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vor") && !instruction.contains("vxor")){
-            //val = 0b001000000000000000;
-            int type = 4;
-            int op = 8;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vxor")){
-            //val = 0b001001000000000000;
-            int type = 4;
-            int op = 9;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction.replace("xor", "or"),0));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vfpmul")){
-            //val = 0b001010000000000000;
-            int type = 4;
-            int op = 10;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-
-        // Vector Immediate
-
-
-        else if(instruction.contains("vaddi")){
-            //val = 0b010000000000000000;
-            int type = 5;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vli")){
-            //val = 0b010100000000000000;
-            int type = 5;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vlui")){
-            //val = 0b011000000000000000;
-            int type = 5;
-            int op = 2;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-        
-
-        // Vector memory 
-
-
-        else if(instruction.contains("vlwi")){
-            //val = 0b100000000000000000;
-            int type = 6;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 20);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vswi")){
-            //val = 0b101000000000000000;
-            int type = 6;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 19);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        // Vector Scalar 
-
-        if(instruction.contains("vsadd") && !instruction.contains("vaddi")){
-            int type = 7;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vssub")){
-            //val = 0b000001000000000000;
-            int type = 7;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsmult")){
-            //val = 0b000010000000000000;
-            int type = 7;
-            int op = 2;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vssll")){
-            //val = 0b000011000000000000;
-            int type = 7;
-            int op = 3;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vssrl")){
-            //val = 0b000100000000000000;
-            int type = 7;
-            int op = 4;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vssla")){
-            //val = 0b000101000000000000;
-            int type = 7;
-            int op = 5;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vssra")){
-            //val = 0b000110000000000000;
-            int type = 7;
-            int op = 6;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsand")){
-            //val = 0b000111000000000000;
-            int type = 7;
-            int op = 7;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsor") && !instruction.contains("vxor")){
-            //val = 0b001000000000000000;
-            int type = 7;
-            int op = 8;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsxor")){
-            //val = 0b001001000000000000;
-            int type = 7;
-            int op = 9;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction.replace("xor", "or"),0));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("vsfpmul")){
-            //val = 0b001010000000000000;
-            int type = 7;
-            int op = 10;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-
-
-
-        // Scalar RR arithmetic 
-
-        else if(instruction.contains("add") && !instruction.contains("addi")){
-            int type = 0;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("sub")){
-            //val = 0b000001000000000000;
-            int type = 0;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("mult")){
-            //val = 0b000010000000000000;
-            int type = 0;
-            int op = 2;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("sll")){
-            //val = 0b000011000000000000;
-            int type = 0;
-            int op = 3;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("srl")){
-            //val = 0b000100000000000000;
-            int type = 0;
-            int op = 4;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("sla")){
-            //val = 0b000101000000000000;
-            int type = 0;
-            int op = 5;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("sra")){
-            //val = 0b000110000000000000;
-            int type = 0;
-            int op = 6;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("and")){
-            //val = 0b000111000000000000;
-            int type = 0;
-            int op = 7;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("or") && !instruction.contains("xor")){
-            //val = 0b001000000000000000;
-            int type = 0;
-            int op = 8;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("xor")){
-            //val = 0b001001000000000000;
-            int type = 0;
-            int op = 9;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction.replace("xor", "or"),0));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("fpmul")){
-            //val = 0b001010000000000000;
-            int type = 0;
-            int op = 10;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("mac")){
-            //val = 0b001011000000000000;
-            int type = 0;
-            int op = 11;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("lw") && !instruction.contains("lwi")){
-            //val = 0b001100000000000000;
-            int type = 0;
-            int op = 12;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("sw") && !instruction.contains("swi")){
-            //val = 0b001101000000000000;
-            int type = 0;
-            int op = 13;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-
-        /*  IMMEDIATE INSTRUCTIONS
-         *   addi rd, immediate
-         *   li rd, immediate
-         *   lui rd, immediate
-         * */
-
-
-        else if(instruction.contains("addi")){
-            //val = 0b010000000000000000;
-            int type = 1;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("li")){
-            //val = 0b010100000000000000;
-            int type = 1;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("lui")){
-            //val = 0b011000000000000000;
-            int type = 1;
-            int op = 2;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 17);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        /*  MEMORY INSTRUCTIONS
-        lwi rd, address
-        swi rd, address
         */
 
-        else if(instruction.contains("lwi")){
-            //val = 0b100000000000000000;
-            int type = 2;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 20);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
+        switch(AssemblyInst){
+            case "add":
+                val = machine_gen(0, 0, 17, instruction);
+                break;
+            case "sub":
+                val = machine_gen(0, 1, 17, instruction);
+                break;
+            case "mult":
+                val = machine_gen(0, 3, 17, instruction);
+                break;
+            case "sll":
+                val = machine_gen(0, 4, 17, instruction);
+                break;
+            case "srl":
+                val = machine_gen(0, 5, 17, instruction);
+                break;
+            case "sla": 
+                val = machine_gen(0, 6, 17, instruction);
+                break;
+            case "and": 
+                val = machine_gen(0, 7, 17, instruction);
+                break;
+            case "or": 
+                val = machine_gen(0, 8, 17, instruction);
+                break;
+            case "xor":
+                val = machine_gen(0, 9, 17, instruction);
+                break;
+            case "fpmul":
+                val = machine_gen(0, 10, 17, instruction);
+                break;
+            case "mac":
+                val = machine_gen(0, 11, 17, instruction);
+                break;
+            case "lw":
+                val = machine_gen(0, 12, 17, instruction);
+                break;
+            case "sw":
+                val = machine_gen(0, 13, 17, instruction);
+                break;
+            case "addi":
+                val = machine_gen(1, 0, 17, instruction);
+                break;
+            case "li":
+                val = machine_gen(1, 1, 17, instruction);
+                System.out.println("penis");
+                break;
+            case "liu": 
+                val = machine_gen(1, 2, 17, instruction);
+                break;
+            case "lwi": 
+                val = machine_gen(2, 0, 20, instruction);
+                break;
+            case "swi": 
+                val = machine_gen(2, 1, 20, instruction);
+                break;
+            case "beq": 
+                val = machine_gen(3, 0, 19, instruction);
+                break;
+            case "bne": 
+                val = machine_gen(3, 1, 19, instruction); 
+                break;
+            case "bge": 
+                val = machine_gen(3, 2, 19, instruction); 
+                break;
+            case "blt": 
+                val = machine_gen(3, 3, 19, instruction); 
+                break;
+            case "vadd":
+                val = machine_gen(4, 0, 17, instruction);
+                break;
+            case "vsub":
+                val = machine_gen(4, 1, 17, instruction);
+                break;
+            case "vmult":
+                val = machine_gen(4, 3, 17, instruction);
+                break;
+            case "vsll":
+                val = machine_gen(4, 4, 17, instruction);
+                break;
+            case "vsrl":
+                val = machine_gen(4, 5, 17, instruction);
+                break;
+            case "vsla": 
+                val = machine_gen(4, 6, 17, instruction);
+                break;
+            case "vand": 
+                val = machine_gen(4, 7, 17, instruction);
+                break;
+            case "vor": 
+                val = machine_gen(4, 8, 17, instruction);
+                break;
+            case "vxor":
+                val = machine_gen(4, 9, 17, instruction);
+                break;
+            case "vfpmul":
+                val = machine_gen(4, 10, 17, instruction);
+                break;
+            case "vaddi":
+                val = machine_gen(5, 0, 17, instruction);
+                break;
+            case "vsubi":
+                val = machine_gen(5, 1, 17, instruction);
+                break;
+            case "vli":
+                val = machine_gen(5, 2, 17, instruction);
+                break;
+            case "vlui":
+                val = machine_gen(5, 3, 17, instruction);
+                break;    
+            case "vmulti":
+                val = machine_gen(5, 4, 17, instruction);
+                break;
+            case "vslli":
+                val = machine_gen(5, 5, 17, instruction);
+                break;
+            case "vsrli":
+                val = machine_gen(5, 6, 17, instruction);
+                break;
+            case "vslai": 
+                val = machine_gen(5, 7, 17, instruction);
+                break;
+            case "vandi": 
+                val = machine_gen(5, 8, 17, instruction);
+                break;
+            case "vori": 
+                val = machine_gen(5, 9, 17, instruction);
+                break;
+            case "vxori":
+                val = machine_gen(5, 10, 17, instruction);
+                break;
+            case "vfpmuli":
+                val = machine_gen(5, 11, 17, instruction);
+                break;
+            case "vlwi": 
+                val = machine_gen(6, 0, 20, instruction);
+                break;
+            case "vswi": 
+                val = machine_gen(6, 1, 20, instruction);
+                break;
+            case "vsadd":
+                val = machine_gen(7, 0, 17, instruction);
+                break;
+            case "vssub":
+                val = machine_gen(7, 1, 17, instruction);
+                break;
+            case "vsmult":
+                val = machine_gen(7, 3, 17, instruction);
+                break;
+            case "vssll":
+                val = machine_gen(7, 4, 17, instruction);
+                break;
+            case "vssrl":
+                val = machine_gen(7, 5, 17, instruction);
+                break;
+            case "vssla": 
+                val = machine_gen(7, 6, 17, instruction);
+                break;
+            case "vsand": 
+                val = machine_gen(7, 7, 17, instruction);
+                break;
+            case "vsor": 
+                val = machine_gen(7, 8, 17, instruction);
+                break;
+            case "vsxor":
+                val = machine_gen(7, 9, 17, instruction);
+                break;
+            case "vsfpmul":
+                val = machine_gen(7, 10, 17, instruction);
+                break;
+
         }
-
-        else if(instruction.contains("swi")){
-            //val = 0b101000000000000000;
-            int type = 2;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 20);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        /*  CONDITIONAL BRANCH INSTRUCTIONS  */
-        /*beq rs1, rs2, offset
-        bne rs1, rs2, offset
-        bge rs1, rs2, offset
-        blt rs1, rs2, offset*/
-
-        else if(instruction.contains("beq")){
-            //val = 0b110000000000000000;
-            int type = 3;
-            int op = 0;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 19);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("bne")){
-            //val = 0b110100000000000000;
-            int type = 3;
-            int op = 1;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 19);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("bge")){
-            //val = 0b111000000000000000;
-            int type = 3;
-            int op = 2;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 19);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        else if(instruction.contains("blt")){
-            //val = 0b111100000000000000;
-            int type = 3;
-            int op = 3;
-            val = 0b000000000000000000000000 | (type << 21);
-            val = val | (op << 19);
-            val = (val | find_arguments(instruction,type));
-            //System.out.println(val);
-        }
-
-        // Vector Instructions
 
         return val;
+    }
+
+    public static int machine_gen(int type, int op, int opshift, String instruction){
+        //System.out.println(instruction);
+
+        int val = 0; 
+        val = 0b000000000000000000000000 | (type << 21);
+        val = val | (op << opshift);
+
+        System.out.println(type);
+
+        val = (val | find_arguments(instruction,type));
+
+    
+
+        return val; 
     }
 
 
@@ -800,11 +629,13 @@ public class Assembler {
 
                 int imm2 = find_register(instruction.substring(rd_index + 3));
 
-                System.out.println(imm2);
+                //System.out.println(imm2);
 
                 return (rd << 17) + (imm2 & 0b1111111111111111);
 
             case 3:
+                System.out.println("case 3");
+
                 rs1_index = instruction.indexOf("x");
                 rs1 = find_register(instruction.substring(rs1_index, rs1_index + 3).replace(" ", ""));
 
@@ -860,7 +691,7 @@ public class Assembler {
 
                 imm2 = find_register(instruction.substring(rd_index + 3));
 
-                System.out.println(imm2);
+                //System.out.println(imm2);
 
                 return (rd << 17) + ((imm2 & 0b1111111111111111) << 1);
 

@@ -1,5 +1,6 @@
 .main:
-li x5, 49152
+vli x0, 100
+vli x1, 1000
 .loop: 
-and x4, x3, x5 
+vmult x0, x0, x1
 j .loop 

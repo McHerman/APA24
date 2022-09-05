@@ -1,4 +1,4 @@
-li x5, 0 //.main:
-lui x5, 12
-and x4, x3, x5  //.loop: 
+vli x0, 100 //.main:
+vli x1, 1000
+vmult x0, x0, x1 //.loop: 
 li x1, .loop 

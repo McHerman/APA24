@@ -90,21 +90,20 @@ Type V1
 13,11 = vrs1  
 10,8 = vrs2 
 
+vadd vrd, vrs1, vrs2
+vsub vrd, vrs1, vrs2
+vmult vrd, vrs1, vrs2
+vsll vrd, vrs1, vrs2
+vsrl vrd, vrs1, vrs2
+vsla vrd, vrs1, vrs2
+vsra vrd, vrs1, vrs2
+vand vrd, vrs1, vrs2
+vor vrd, vrs1, vrs2
+vxor vrd, vrs1, vrs2
+vfpmul vrd, vrs1, vrs2 
+vmac vrd, vrs1, vrs2
+
 Extra bits = 8
-
-add vrd, vrs1, vrs2
-sub vrd, vrs1, vrs2
-mult vrd, vrs1, vrs2
-sll vrd, vrs1, vrs2
-srl vrd, vrs1, vrs2
-sla vrd, vrs1, vrs2
-sra vrd, vrs1, vrs2
-and vrd, vrs1, vrs2
-or vrd, vrs1, vrs2
-xor vrd, vrs1, vrs2
-fpmul vrd, vrs1, vrs2 
-mac vrd, vrs1, vrs2
-
 
 ////////////////////
 
@@ -113,6 +112,20 @@ Type V2
 20,17 = Operation
 16,12 = vrd 
 11,0 = Immediate
+
+vaddi vrd, imm
+vsubi vrd, imm
+vli vrd, imm
+vlui vrd, imm
+vmulti vrd, imm
+vslli vrd, imm
+vsrli vrd, imm
+vslai vrd, imm
+vsrai vrd, imm
+vandi vrd, imm
+vori vrd, imm
+vxori vrd, imm
+vfpmuli vrd, imm 
 
 extra bits = 2
 
@@ -135,11 +148,22 @@ Type V4
 12,9 = vrs1
 8,4 = rs2
 
+vsadd vrd, vrs1, vrs2
+vssub vrd, vrs1, vrs2
+vsmult vrd, vrs1, vrs2
+vssll vrd, vrs1, vrs2
+vssrl vrd, vrs1, vrs2
+vssla vrd, vrs1, vrs2
+vssra vrd, vrs1, vrs2
+vsand vrd, vrs1, vrs2
+vsor vrd, vrs1, vrs2
+vsxor vrd, vrs1, vrs2
+vsfpmul vrd, vrs1, vrs2 
+vsmac vrd, vrs1, vrs2
+
 extra bits = 4
 
 ////////////////////
-
-
 
 Scalar Registers
 

@@ -1,6 +1,8 @@
-Datahazard protection on vector registers 
-Add vector registers to assembler 
-Test assembler
+Datahazard protection on vector registers -Done 
+Add vector registers to assembler -Done 
+Test assembler -WIP 
+Change addi to uint and add subi
+Add add li to core 
 Maybe expand ISA type field with 1 bit 
 Waveform testing
 
