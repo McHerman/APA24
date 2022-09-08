@@ -72,10 +72,10 @@ class InstuctionDecoder() extends Module {
       io.rs2 := io.Instruction(6,2)
     }
     is(1.U){
-      io.AOperation := io.Instruction(20,18)
-      io.rd := io.Instruction(17,13)
-      io.AImmidiate := io.Instruction(12,0)
-      io.ASImmidiate := io.Instruction(12,0).asSInt
+      io.AOperation := io.Instruction(20,17)
+      io.rd := io.Instruction(16,12)
+      io.AImmidiate := io.Instruction(11,0)
+      io.ASImmidiate := io.Instruction(11,0).asSInt
     }
 
     //TODO fix scalar mem-access
@@ -108,16 +108,16 @@ class InstuctionDecoder() extends Module {
       VectorIO.ASImmediate := io.Instruction(13,2).asSInt
     }
     is(6.U){
-      VectorIO.MemOp := io.Instruction(20,19)
-      VectorIO.vrd := io.Instruction(18,16)
-      VectorIO.MemAddress := io.Instruction(15,0)
+      VectorIO.MemOp := io.Instruction(20)
+      VectorIO.vrd := io.Instruction(19,17)
+      VectorIO.MemAddress := io.Instruction(16,1)
     }
     is(7.U){
       VectorIO.AOperation := io.Instruction(20,17)
-      VectorIO.vrd := io.Instruction(16,14)
-      VectorIO.vrs1 := io.Instruction(13,11)
+      VectorIO.vrd := io.Instruction(16,13)
+      VectorIO.vrs1 := io.Instruction(12,9)
       //VectorIO.vrs2 := io.Instruction(12,8)
-      VectorIO.rs := io.Instruction(10,6)
+      VectorIO.rs := io.Instruction(8,4)
     }
   }
 }

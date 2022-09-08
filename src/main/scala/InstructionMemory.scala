@@ -15,8 +15,8 @@ class InstuctionMemory(memoryFile: String = "") extends Module {
     val enable = Input(Bool())
     val write = Input(Bool())
     val Address = Input(UInt(10.W))
-    val DataIn = Input(UInt(18.W))
-    val Instruction = Output(UInt(18.W))
+    val DataIn = Input(UInt(24.W))
+    val Instruction = Output(UInt(24.W))
   })
 
 

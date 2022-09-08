@@ -1,6 +1,6 @@
 tinyISA2
 
-24 bit RISC istruction-set
+24 bit RISC instruction-set
 
 23,21 = Type
 
@@ -41,9 +41,20 @@ Type S2
 11,0 = Immediate value
 
 
-addi rd, imm // Signed
 li rd, imm
 lui rd, imm 
+add rd, imm 
+sub rd, imm 
+mult rd, imm 
+sll rd, imm 
+srl rd, imm 
+sla rd, imm 
+sra rd, imm 
+and rd, imm 
+or rd, imm 
+xor rd, imm 
+fpmul rd, imm  
+mac rd, imm 
 
 lwi rd, imm address
 lswi rd, imm address
@@ -110,8 +121,8 @@ Extra bits = 8
 Type V2
 
 20,17 = Operation
-16,12 = vrd 
-11,0 = Immediate
+16,14 = vrd 
+13,2 = Immediate
 
 vaddi vrd, imm
 vsubi vrd, imm

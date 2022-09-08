@@ -14,7 +14,7 @@ class ExecuteStage(Lanes: Int) extends Module {
     val len = Input(UInt(24.W))
   })
   val In = IO(new Bundle {
-    val Type = Input(UInt(2.W))
+    val Type = Input(UInt(3.W))
     val rs1 = Input(UInt(5.W))
     val rs2 = Input(UInt(5.W))
     val rd = Input(UInt(5.W))
@@ -44,6 +44,7 @@ class ExecuteStage(Lanes: Int) extends Module {
     val ALUOut = Output(UInt(24.W))
     val VALUOut = Output(Vec(16,UInt(24.W)))
     val JumpValue = Output(UInt(18.W))
+    val readValid = Output(UInt(1.W))
   })
 
 
@@ -77,9 +78,9 @@ class ExecuteStage(Lanes: Int) extends Module {
     VALU.io.vrd(i) := 0.U
   }
 
-  VALU.io.len := vio.len
   VALU.io.Operation := 0.U
   VALU.io.rs := 0.U
+  VALU.io.en := false.B
 
   BranchComp.io.rs2 := 0.U
   BranchComp.io.rs1 := 0.U
@@ -107,7 +108,9 @@ class ExecuteStage(Lanes: Int) extends Module {
   val vrs2 = Wire(Vec(16,UInt(24.W)))
   val vrd = Wire(Vec(16,UInt(24.W)))
   val vrs = Wire(UInt(24.W))
-  
+  val vlen = Wire(UInt(6.W))
+
+  VALU.io.len := vlen
 
   val swStall = RegInit(0.U(1.W))
   val lwStall = RegInit(0.U(1.W))
@@ -122,6 +125,7 @@ class ExecuteStage(Lanes: Int) extends Module {
   vrs2 := vio.vx(VectorIn.vrs2)
   vrd := vio.vx(VectorIn.vrd)
   vrs := io.x(VectorIn.rs)
+  vlen := io.x(2.U)
 
   // If the current instructions uses the result of a previous calculation, that isnt written to the register
   // the following code fetches the result from the internal pipeline registers
@@ -217,6 +221,21 @@ class ExecuteStage(Lanes: Int) extends Module {
     }
   }
 
+  when(2.U === DataHazard){
+    switch(WritebackMode){
+      is(Arithmetic){
+        vlen := ALUOutReg
+      }
+      is(ImmidiateArithmetic){
+        vlen := ALUOutReg
+      }
+      is(MemoryI){
+        vlen := io.MemPort.ReadData(0)
+      }
+    }
+  }
+
+
 
   Out.ALUOut := ALUOutReg
   //Out.VALUOut := VALU.io.Out
@@ -226,7 +245,14 @@ class ExecuteStage(Lanes: Int) extends Module {
   Out.JumpValue := COffsetReg
 
   ALUOutReg := ALU.io.Out
-  VALUOutReg := VALU.io.Out
+
+  val CompleteDelay = RegInit(0.U(1.W))
+  CompleteDelay := VALU.io.Completed
+  Out.readValid := CompleteDelay
+
+  when(VALU.io.Completed){
+    VALUOutReg := VALU.io.Out
+  }
 
   // Clear overwrites registers
 
@@ -416,14 +442,16 @@ class ExecuteStage(Lanes: Int) extends Module {
       //VALU.io.vrs2 := vio.vx(VectorIn.vrs2)
 
       VALU.io.vrs1 := vrs1
-      VALU.io.vrs1 := vrs2
+      VALU.io.vrs2 := vrs2
 
-      VALU.io.Operation := In.AOperation
+      VALU.io.Operation := VectorIn.AOperation
 
       WritebackMode := vArithmetic
       WritebackRegister := VectorIn.vrd
 
       VectorDataHazard := VectorIn.vrd
+
+      VALU.io.en := true.B
 
       when(!VALU.io.Completed){
         io.Stall := true.B
@@ -454,7 +482,7 @@ class ExecuteStage(Lanes: Int) extends Module {
 
       */
 
-      when(In.AOperation === 0.U){
+      when(VectorIn.AOperation === 0.U){
 
         // li 
 
@@ -464,9 +492,17 @@ class ExecuteStage(Lanes: Int) extends Module {
         }
 
         VALU.io.Operation := 0.U
-      }.elsewhen(In.AOperation === 1.U){
+
+        VALU.io.en := true.B
+
+        when(!VALU.io.Completed){
+          io.Stall := true.B
+        }
+      }.elsewhen(VectorIn.AOperation === 1.U){
 
         // lui 
+
+        VALU.io.en := true.B
 
         for(i <- 0 until 16){
           VALU.io.vrs2(i) := 0.U
@@ -484,8 +520,13 @@ class ExecuteStage(Lanes: Int) extends Module {
         
         VALU.io.Operation := 0.U
 
+        when(!VALU.io.Completed){
+          io.Stall := true.B
+        }
       }.otherwise{
           //VALU.io.vrs2 := In.AImmediate.asUInt
+
+          VALU.io.en := true.B
 
           for(i <- 0 until 16){
             VALU.io.vrs2(i) := In.AImmediate.asUInt
@@ -493,7 +534,7 @@ class ExecuteStage(Lanes: Int) extends Module {
 
           VALU.io.vrs1 := vrs1
 
-          VALU.io.Operation := (In.AOperation - 2.U)
+          VALU.io.Operation := (VectorIn.AOperation - 2.U)
 
       }
 
@@ -529,12 +570,14 @@ class ExecuteStage(Lanes: Int) extends Module {
         io.Stall := true.B
       }
 
-      WritebackRegister := In.rd
+      WritebackRegister := VectorIn.vrd
 
     }
     is(7.U){
       //VALU.io.vrs1 := vio.vx(VectorIn.vrs1)
       VALU.io.vrs1 := vrs1
+
+      VALU.io.en := true.B
 
       for(i <- 0 until 16){
         VALU.io.vrs2(i) := io.x(VectorIn.rs)
@@ -542,7 +585,7 @@ class ExecuteStage(Lanes: Int) extends Module {
 
       //VALU.io.vrs2 := vio.vx(VectorIn.vrs2)
 
-      VALU.io.Operation := In.AOperation
+      VALU.io.Operation := VectorIn.AOperation
 
       WritebackMode := vArithmetic
       WritebackRegister := VectorIn.vrd
@@ -552,7 +595,6 @@ class ExecuteStage(Lanes: Int) extends Module {
       when(!VALU.io.Completed){
         io.Stall := true.B
       }
-
 
     }
   }

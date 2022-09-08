@@ -11,7 +11,7 @@ class DecodeStage extends Module {
     val Instruction = Input(UInt(24.W))
   })
   val Out = IO(new Bundle {
-    val Type = Output(UInt(2.W))
+    val Type = Output(UInt(3.W))
     val rs1 = Output(UInt(4.W))
     val rs2 = Output(UInt(4.W))
     val rd = Output(UInt(4.W))
@@ -43,7 +43,7 @@ class DecodeStage extends Module {
   val InstDec = Module(new InstuctionDecoder())
 
   val AddressReg = RegInit(0.U(10.W))
-  val TypeReg = RegInit(0.U(2.W))
+  val TypeReg = RegInit(0.U(3.W))
   val rs1Reg = RegInit(0.U(5.W))
   val rs2Reg = RegInit(0.U(5.W))
   val rdReg = RegInit(0.U(5.W))
@@ -198,7 +198,7 @@ class DecodeStage extends Module {
 
   // Inserts bubble in pipeline in case of memory access. 
 
-  when(InstDec.io.AOperation === 9.U || InstDec.io.AOperation === 10.U || InstDec.io.Type === 3.U){
+  when(InstDec.io.AOperation === 9.U || InstDec.io.AOperation === 10.U || InstDec.io.Type === 3.U || (InstDec.io.Type > 3.U)){
     io.MiniStall := true.B
   }
   

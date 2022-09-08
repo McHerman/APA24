@@ -64,7 +64,7 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
   read_assembly(Program);
 
 
-  val Core = Module(new Core("Programs/MachineCode/" + Program, Lanes))
+  val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes))
   val DataMemory = Module(new DataMemory(1, Memsize, SPIRAM_Offset))
 
   // IO

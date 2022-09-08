@@ -248,7 +248,7 @@ public class Assembler {
 
         String AssemblyInst = instruction.substring(0, instruction.indexOf(" "));
 
-        System.out.println(AssemblyInst + "*" + "\n");
+        //System.out.println(AssemblyInst + "*" + "\n");
 
         switch(AssemblyInst){
 
@@ -261,12 +261,15 @@ public class Assembler {
                 val = machine_gen(0, 1, 17, instruction);
                 break;
             case "mult":
+                val = machine_gen(0, 2, 17, instruction);
+                break;
+            case "srl":
                 val = machine_gen(0, 3, 17, instruction);
                 break;
             case "sll":
                 val = machine_gen(0, 4, 17, instruction);
                 break;
-            case "srl":
+            case "sra": 
                 val = machine_gen(0, 5, 17, instruction);
                 break;
             case "sla": 
@@ -313,26 +316,29 @@ public class Assembler {
             case "multi":
                 val = machine_gen(1, 4, 17, instruction);
                 break;
-            case "slli":
+            case "srli":
                 val = machine_gen(1, 5, 17, instruction);
                 break;
-            case "srli":
+            case "slli":
                 val = machine_gen(1, 6, 17, instruction);
                 break;
-            case "slai": 
+            case "srai": 
                 val = machine_gen(1, 7, 17, instruction);
                 break;
-            case "andi": 
+            case "slai": 
                 val = machine_gen(1, 8, 17, instruction);
                 break;
-            case "ori": 
+            case "andi": 
                 val = machine_gen(1, 9, 17, instruction);
                 break;
-            case "xori":
+            case "ori": 
                 val = machine_gen(1, 10, 17, instruction);
                 break;
-            case "fpmuli":
+            case "xori":
                 val = machine_gen(1, 11, 17, instruction);
+                break;
+            case "fpmuli":
+                val = machine_gen(1, 12, 17, instruction);
                 break;
 
 
@@ -374,12 +380,15 @@ public class Assembler {
                 val = machine_gen(4, 1, 17, instruction);
                 break;
             case "vmult":
+                val = machine_gen(4, 2, 17, instruction);
+                break;
+            case "vsrl":
                 val = machine_gen(4, 3, 17, instruction);
                 break;
             case "vsll":
                 val = machine_gen(4, 4, 17, instruction);
                 break;
-            case "vsrl":
+            case "vsra": 
                 val = machine_gen(4, 5, 17, instruction);
                 break;
             case "vsla": 
@@ -416,26 +425,29 @@ public class Assembler {
             case "vmulti":
                 val = machine_gen(5, 4, 17, instruction);
                 break;
-            case "vslli":
+            case "vsrli":
                 val = machine_gen(5, 5, 17, instruction);
                 break;
-            case "vsrli":
+            case "vslli":
                 val = machine_gen(5, 6, 17, instruction);
                 break;
-            case "vslai": 
+            case "vsrai": 
                 val = machine_gen(5, 7, 17, instruction);
                 break;
-            case "vandi": 
+            case "vslai": 
                 val = machine_gen(5, 8, 17, instruction);
                 break;
-            case "vori": 
+            case "vandi": 
                 val = machine_gen(5, 9, 17, instruction);
                 break;
-            case "vxori":
+            case "vori": 
                 val = machine_gen(5, 10, 17, instruction);
                 break;
-            case "vfpmuli":
+            case "vxori":
                 val = machine_gen(5, 11, 17, instruction);
+                break;
+            case "vfpmuli":
+                val = machine_gen(5, 12, 17, instruction);
                 break;
 
 
@@ -460,12 +472,15 @@ public class Assembler {
                 val = machine_gen(7, 1, 17, instruction);
                 break;
             case "vsmult":
+                val = machine_gen(7, 2, 17, instruction);
+                break;
+            case "vssrl":
                 val = machine_gen(7, 3, 17, instruction);
                 break;
             case "vssll":
                 val = machine_gen(7, 4, 17, instruction);
                 break;
-            case "vssrl":
+            case "vssra": 
                 val = machine_gen(7, 5, 17, instruction);
                 break;
             case "vssla": 
@@ -496,7 +511,7 @@ public class Assembler {
         val = 0b000000000000000000000000 | (type << 21);
         val = val | (op << opshift);
 
-        System.out.println(type);
+        //System.out.println(type);
 
         val = (val | find_arguments(instruction,type));
 
@@ -540,9 +555,13 @@ public class Assembler {
 
                 int imm = find_register(instruction.substring(rd_index + 3));
 
+                /* 
+
                 if(instruction.contains("addi") && instruction.contains("-")){
                     imm = -imm;
                 }
+
+                */
 
                 return (rd << 12) + (imm & 0b111111111111);
             case 2:
@@ -553,7 +572,7 @@ public class Assembler {
 
                 //System.out.println(imm2);
 
-                return (rd << 17) + (imm2 & 0b1111111111111111);
+                return (rd << 15) + (imm2 & 0xfff);
 
             case 3:
                 System.out.println("case 3");
@@ -602,11 +621,15 @@ public class Assembler {
 
                 imm = find_register(instruction.substring(rd_index + 3));
 
+                /*
+
                 if(instruction.contains("addi") && instruction.contains("-")){
                     imm = -imm;
                 }
 
-                return (rd << 12) + (imm & 0b111111111111);
+                */
+
+                return (rd << 14) + ((imm & 0xfff) << 2);
             case 6:
                 rd_index = instruction.indexOf("x");
                 rd = find_register(instruction.substring(rd_index, rd_index + 3).replace(" ", ""));

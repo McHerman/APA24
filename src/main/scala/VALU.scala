@@ -14,11 +14,12 @@ class ALU_IO extends Bundle{
 
 class VALU(Lanes: Int) extends Module {
   val io = IO(new Bundle {
+    val en = Input(Bool())
     val vrs1 = Input(Vec(16,UInt(24.W)))
     val vrs2 = Input(Vec(16,UInt(24.W)))
     val vrd = Input(Vec(16,UInt(24.W)))
 
-    val len = Input(UInt(4.W))
+    val len = Input(UInt(5.W))
 
     val rs = Input(UInt(24.W))
 
@@ -50,62 +51,58 @@ class VALU(Lanes: Int) extends Module {
   }
 
 
-  val CntReg = RegInit(0.U(4.W))
+  val CntReg = RegInit(0.U(6.W))
 
-  when(CntReg === (io.len - 1.U)){
+  when(CntReg === io.len){
     CntReg := 0.U
     io.Completed := true.B
   } 
 
-  when(((io.len - 1.U) - CntReg) >= Lanes.U){
-    for(i <- 0 until Lanes){
-      LaneIO(i).rs1 := io.vrs1(i)
-      LaneIO(i).rs2 := io.vrs2(i)
-      OutReg(i.U + CntReg) := LaneIO(i).rd 
+  when(io.en){
+    when((io.len - CntReg) >= Lanes.U){
+      for(i <- 0 until Lanes){
+        val index = Wire(UInt(24.W))
+        index := CntReg + i.U
 
-      LaneIO(i).Operation := io.Operation
+        LaneIO(i.U).rs1 := io.vrs1(index)
+        LaneIO(i).rs2 := io.vrs2(index)
+        OutReg(index) := LaneIO(i).Out
 
-      CntReg := CntReg + Lanes.U
-    }
-  }.otherwise{
+        LaneIO(i).Operation := io.Operation
+
+        CntReg := CntReg + Lanes.U
+      }
+    }.otherwise{
+      for(i <- 0 until Lanes){
+        switch(io.len - CntReg){
+          is(i.U){
+            for(j <- 0 until i){
+              LaneIO(j).rs1 := io.vrs1(CntReg + j.U)
+              LaneIO(j).rs2 := io.vrs2(CntReg + j.U)
+              OutReg(i.U + CntReg) := LaneIO(j).Out 
+
+              LaneIO(i).Operation := io.Operation
+
+              CntReg := CntReg + i.U
+
+            }
+          }
+        }
+      }
+    } 
+
     /*
-    switch((io.len - CntReg)){
-      for(i <- 0 until 15){
+
+    for(i <- 0 until 16){
+      switch(io.len){
         is(i.U){
-          for(j <- 0 until i){
-            LaneIO(j).rs1 := io.vrs1(j)
-            LaneIO(j).rs2 := io.vrs2(j)
-            OutReg(i.U + CntReg) := LaneIO(j).rd  
-
-            io.vrd(j) := LaneIO(j).rd
-
-            LaneIO(i).Operation := io.Operation
-
-            CntReg := CntReg + i.U
-
+          for(j <- i until 16){
+              OutReg(j.U) := 0.U 
           }
         }
       }
     }
+
     */
-
-    for(i <- 0 until Lanes){
-      switch((io.len - 1.U) - CntReg){
-        is(i.U){
-          for(j <- 0 until i){
-            LaneIO(j).rs1 := io.vrs1(j)
-            LaneIO(j).rs2 := io.vrs2(j)
-            OutReg(i.U + CntReg) := LaneIO(j).rd  
-
-            LaneIO(i).Operation := io.Operation
-
-            CntReg := CntReg + i.U
-
-          }
-        }
-      }
-    }
-
-
-  } 
+  }  
 }

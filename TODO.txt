@@ -5,7 +5,7 @@ Change addi to uint and add subi -Done
 Add li to core -Done
 Maybe expand ISA type field with 1 bit 
 Waveform testing
-
+Add VALU ministall when x(2) > Lanes -Done 
 
 Animate APA24 logo (very important)
 add Make 

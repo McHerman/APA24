@@ -68,10 +68,13 @@ class Core(Program: String, Lanes: Int) extends Module {
 
   // Instruction Fetch
 
+  val Fixreg = RegInit(0.U(1.W))
+
   FetchStage.In.PC := x(1)
   FetchStage.io.Stall := ExecuteStage.io.Stall 
+  Fixreg := ExecuteStage.io.Stall 
 
-  when(!ExecuteStage.io.Stall && !DecodeStage.io.MiniStall){
+  when(!ExecuteStage.io.Stall && !(DecodeStage.io.MiniStall && !Fixreg.asBool)){
     x(1) := x(1) + 1.U
   }
   // easiest way to avoid pipelining error in memory access
@@ -90,32 +93,70 @@ class Core(Program: String, Lanes: Int) extends Module {
   // Writeback
   // Execute stage actions
 
-  switch(ExecuteStage.Out.WritebackMode){
-    is(Arithmetic){
-      x(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.ALUOut
+  /*
 
-      // In case of jump, the pipeline is cleared
+  when(!ExecuteStage.io.Stall){
+    switch(ExecuteStage.Out.WritebackMode){
+      is(Arithmetic){
+        x(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.ALUOut
 
-      when(ExecuteStage.Out.WritebackRegister === 1.U){
+        // In case of jump, the pipeline is cleared
+
+        when(ExecuteStage.Out.WritebackRegister === 1.U){
+          FetchStage.io.Clear := true.B
+          DecodeStage.io.Clear := true.B
+          ExecuteStage.io.Clear := true.B
+        }
+      }
+      is(MemoryI){
+        x(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData(0)
+      }
+      is(Conditional){
+        x(1) := ExecuteStage.Out.JumpValue
         FetchStage.io.Clear := true.B
         DecodeStage.io.Clear := true.B
         ExecuteStage.io.Clear := true.B
       }
-    }
-    is(MemoryI){
-      x(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData(0)
-    }
-    is(Conditional){
-      x(1) := ExecuteStage.Out.JumpValue
-      FetchStage.io.Clear := true.B
-      DecodeStage.io.Clear := true.B
-      ExecuteStage.io.Clear := true.B
-    }
-    is(vArithmetic){
-      vx(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.VALUOut
-    }
-    is(vMemoryI){
-      vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
+      is(vArithmetic){
+        vx(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.VALUOut
+      }
+      is(vMemoryI){
+        vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
+      }
     }
   }
+
+  */
+
+  switch(ExecuteStage.Out.WritebackMode){
+      is(Arithmetic){
+        x(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.ALUOut
+
+        // In case of jump, the pipeline is cleared
+
+        when(ExecuteStage.Out.WritebackRegister === 1.U){
+          FetchStage.io.Clear := true.B
+          DecodeStage.io.Clear := true.B
+          ExecuteStage.io.Clear := true.B
+        }
+      }
+      is(MemoryI){
+        x(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData(0)
+      }
+      is(Conditional){
+        x(1) := ExecuteStage.Out.JumpValue
+        FetchStage.io.Clear := true.B
+        DecodeStage.io.Clear := true.B
+        ExecuteStage.io.Clear := true.B
+      }
+      is(vArithmetic){
+        when(ExecuteStage.Out.readValid.asBool){
+          vx(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.VALUOut
+        }
+      }
+      is(vMemoryI){
+        vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
+      }
+    }
+
 }

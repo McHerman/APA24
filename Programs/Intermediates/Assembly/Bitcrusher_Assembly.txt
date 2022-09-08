@@ -1,4 +1,5 @@
-vli x0, 100 
+li x2, 16 
+vli x0, 100
 vli x1, 1000
 vmult x0, x0, x1 
-li x1, 2
+li x1, 3
