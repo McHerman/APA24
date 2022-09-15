@@ -11,11 +11,12 @@ class MemPort extends Bundle{
   val Address = Output(UInt(24.W))
   val WriteData = Output(Vec(16,UInt(24.W)))
   val Enable = Output(Bool())
-  val Len = Output(UInt(4.W))
+  val Len = Output(UInt(5.W))
   val WriteEn = Output(Bool())
 
   val ReadData = Input(Vec(16,UInt(24.W)))
   val Completed = Input(Bool())
+  val ReadValid = Input(Bool())
 }
 
 class CAP_IO extends Bundle{
@@ -64,7 +65,7 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
   read_assembly(Program);
 
 
-  val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes))
+  val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes, Memsize))
   val DataMemory = Module(new DataMemory(1, Memsize, SPIRAM_Offset))
 
   // IO
@@ -76,6 +77,7 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
   // Interconnections
 
   Core.io.MemPort <> DataMemory.io.MemPort(0)
+  Core.io.MemTaken := DataMemory.io.Taken
 
   SPI.SPIMemPort <> DataMemory.io.SPIMemPort
 }

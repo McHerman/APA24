@@ -15,19 +15,20 @@ object Core{
   val vMemoryI = 8.U
 }
 
-class Core(Program: String, Lanes: Int) extends Module {
+class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
   val io = IO(new Bundle {
     val WaveIn = Input(UInt(18.W))
     val WaveOut = Output(UInt(18.W))
 
     val MemPort = new MemPort
+    val MemTaken = Input(Bool())
   })
 
   // Initializing pipeline 
 
   val FetchStage = Module(new FetchStage(Program))
   val DecodeStage = Module(new DecodeStage)
-  val ExecuteStage = Module(new ExecuteStage(Lanes))
+  val ExecuteStage = Module(new ExecuteStage(Lanes, Memsize))
 
   //Initializing Registers
   //x = register bank
@@ -60,6 +61,7 @@ class Core(Program: String, Lanes: Int) extends Module {
   ExecuteStage.io.MemPort <> io.MemPort
   ExecuteStage.io.Clear := false.B
   ExecuteStage.io.x := x
+  ExecuteStage.io.MemTaken := io.MemTaken
 
   ExecuteStage.vio.vx := vx
   ExecuteStage.vio.len := x(2)
@@ -74,7 +76,7 @@ class Core(Program: String, Lanes: Int) extends Module {
   FetchStage.io.Stall := ExecuteStage.io.Stall 
   Fixreg := ExecuteStage.io.Stall 
 
-  when(!ExecuteStage.io.Stall && !(DecodeStage.io.MiniStall && !Fixreg.asBool)){
+  when(!ExecuteStage.io.Stall){
     x(1) := x(1) + 1.U
   }
   // easiest way to avoid pipelining error in memory access
@@ -93,40 +95,6 @@ class Core(Program: String, Lanes: Int) extends Module {
   // Writeback
   // Execute stage actions
 
-  /*
-
-  when(!ExecuteStage.io.Stall){
-    switch(ExecuteStage.Out.WritebackMode){
-      is(Arithmetic){
-        x(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.ALUOut
-
-        // In case of jump, the pipeline is cleared
-
-        when(ExecuteStage.Out.WritebackRegister === 1.U){
-          FetchStage.io.Clear := true.B
-          DecodeStage.io.Clear := true.B
-          ExecuteStage.io.Clear := true.B
-        }
-      }
-      is(MemoryI){
-        x(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData(0)
-      }
-      is(Conditional){
-        x(1) := ExecuteStage.Out.JumpValue
-        FetchStage.io.Clear := true.B
-        DecodeStage.io.Clear := true.B
-        ExecuteStage.io.Clear := true.B
-      }
-      is(vArithmetic){
-        vx(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.VALUOut
-      }
-      is(vMemoryI){
-        vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
-      }
-    }
-  }
-
-  */
 
   switch(ExecuteStage.Out.WritebackMode){
       is(Arithmetic){
@@ -155,7 +123,13 @@ class Core(Program: String, Lanes: Int) extends Module {
         }
       }
       is(vMemoryI){
-        vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
+        
+        when(io.MemPort.ReadValid){
+          vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
+        }
+        
+
+        //vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
       }
     }
 

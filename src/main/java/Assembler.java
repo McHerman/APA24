@@ -88,10 +88,18 @@ public class Assembler {
 
                             addedData = "";
                         }
-                    }else if((data.contains("sw") && data.contains("swi")) || (data.contains("lw") && data.contains("lwi") && !data.contains("v"))){
+                    }
+
+                    /*
+                    
+                    else if(((data.contains("sw") || (data.contains("lw")) && !data.contains("v") && !data.contains("swi") && !data.contains("lwi")))){
                         myWriter.write(data + ", x0" + addedData + "\n");
                         addedData = "";
                     }
+
+                    */
+
+
                 }else if(data != ""){
                     myWriter.write(data + addedData + "\n");
                     addedData = "";
@@ -111,7 +119,7 @@ public class Assembler {
 
     public static boolean pseudo_instructions(String instruction) {
 
-        if (instruction.contains("j") || instruction.contains("loadFir") || instruction.contains("li") || instruction.contains("sw") || instruction.contains("lw")) {
+        if (instruction.contains("j") || instruction.contains("loadFir") || instruction.contains("li")) {
             return true;
         }
         return false;
@@ -351,6 +359,7 @@ public class Assembler {
             case "swi": 
                 val = machine_gen(2, 1, 20, instruction);
                 break;
+            
 
 
             // Type S4

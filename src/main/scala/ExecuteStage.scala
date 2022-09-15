@@ -2,12 +2,13 @@ import chisel3._
 import chisel3.util._
 import Core._
 
-class ExecuteStage(Lanes: Int) extends Module {
+class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
   val io = IO(new Bundle {
     val x = Input(Vec(32,UInt(24.W)))
     val MemPort = new MemPort
     val Stall = Output(Bool())
     val Clear = Input(Bool())
+    val MemTaken = Input(Bool())
   })
   val vio = IO(new Bundle {
     val vx = Input(Vec(8,Vec(16,UInt(24.W))))
@@ -89,7 +90,7 @@ class ExecuteStage(Lanes: Int) extends Module {
   BranchComp.io.Operation := 0.U
 
   val WritebackMode = RegInit(0.U(4.W))
-  val WritebackRegister = RegInit(0.U(4.W))
+  val WritebackRegister = RegInit(0.U(5.W))
   val ALUOutReg = RegInit(0.U(24.W))
   val COffsetReg = RegInit(0.U(6.W))
 
@@ -114,6 +115,11 @@ class ExecuteStage(Lanes: Int) extends Module {
 
   val swStall = RegInit(0.U(1.W))
   val lwStall = RegInit(0.U(1.W))
+
+  // Backup Registers 
+  
+  // Okay so in case of a stall, the data in the Decode stage registers will be overwritten, even though the execute stage is not done computing the instructions. 
+  // To fix this bug, i originally inserted a bubble into the pipeline, so the execute stage could either complete the instruction or issue a stall.  
 
   // Data hazard protection
 
@@ -263,6 +269,26 @@ class ExecuteStage(Lanes: Int) extends Module {
     COffsetReg := 0.U
   }
 
+  // Stall logic
+
+  //when((vlen > Lanes.U || MemAddress > Memsize.U || io.MemTaken) )
+
+  val VALU_Stall = Wire(Bool())
+
+  val A = Wire(Bool())
+  val B = Wire(Bool())
+  //val XOROut = Wire(UInt(1.W))
+
+  VALU_Stall := ((vlen > Lanes.U) && (In.Type === 4.U || In.Type === 5.U || In.Type === 7.U))
+
+  A := (VALU_Stall || In.Type === 6.U || In.MemAddress > 1000000.U || io.MemTaken)
+  B := (VALU.io.Completed || io.MemPort.Completed)
+  
+
+  when((A && !B)){
+    io.Stall := true.B
+  }
+
   // Logic
   
   switch(In.Type){
@@ -321,9 +347,13 @@ class ExecuteStage(Lanes: Int) extends Module {
 
         DataHazard := In.rd
 
+        /*
+
         when(!io.MemPort.Completed){
           io.Stall := true.B
         }
+
+        */
       }.elsewhen(In.AOperation === 13.U){
 
         // sw rd, rs1
@@ -349,9 +379,13 @@ class ExecuteStage(Lanes: Int) extends Module {
 
         WritebackMode := Nil
 
+        /*
+
         when(!io.MemPort.Completed){
           io.Stall := true.B
         }
+
+        */
       }
     }
     is(1.U){
@@ -406,9 +440,13 @@ class ExecuteStage(Lanes: Int) extends Module {
         }
       }
 
+      /*
+
       when(!io.MemPort.Completed){
         io.Stall := true.B
       }
+
+      */
 
       WritebackRegister := In.rd
     }
@@ -453,9 +491,13 @@ class ExecuteStage(Lanes: Int) extends Module {
 
       VALU.io.en := true.B
 
+      /*
+
       when(!VALU.io.Completed){
         io.Stall := true.B
       }
+
+      */
     }
     is(5.U){
 
@@ -520,9 +562,13 @@ class ExecuteStage(Lanes: Int) extends Module {
         
         VALU.io.Operation := 0.U
 
+        
+
         when(!VALU.io.Completed){
           io.Stall := true.B
         }
+
+        
       }.otherwise{
           //VALU.io.vrs2 := In.AImmediate.asUInt
 
@@ -543,9 +589,13 @@ class ExecuteStage(Lanes: Int) extends Module {
 
       VectorDataHazard := VectorIn.vrd
 
+      
+
       when(!VALU.io.Completed){
         io.Stall := true.B
       }
+
+      
 
     }
     is(6.U){

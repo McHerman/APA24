@@ -12,9 +12,9 @@ class DecodeStage extends Module {
   })
   val Out = IO(new Bundle {
     val Type = Output(UInt(3.W))
-    val rs1 = Output(UInt(4.W))
-    val rs2 = Output(UInt(4.W))
-    val rd = Output(UInt(4.W))
+    val rs1 = Output(UInt(5.W))
+    val rs2 = Output(UInt(5.W))
+    val rd = Output(UInt(5.W))
     val AImmediate = Output(UInt(11.W))
     val ASImmediate = Output(SInt(11.W))
     val AOperation = Output(UInt(4.W))
@@ -198,8 +198,12 @@ class DecodeStage extends Module {
 
   // Inserts bubble in pipeline in case of memory access. 
 
+  /*
+
   when(InstDec.io.AOperation === 9.U || InstDec.io.AOperation === 10.U || InstDec.io.Type === 3.U || (InstDec.io.Type > 3.U)){
     io.MiniStall := true.B
   }
+
+  */
   
 }

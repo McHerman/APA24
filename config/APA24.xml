@@ -1,6 +1,6 @@
 <APA24>
   <Core top="true" id="0">
-    <Program>Bitcrusher</Program>
+    <Program>Memtest</Program>
     <Inputs>
       <Input node="In"/>
     </Inputs>

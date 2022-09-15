@@ -1,0 +1,36 @@
+.main 
+li x16, 1
+li x17, 2 
+li x18, 3
+li x19, 4
+li x20, 5 
+li x21, 6
+li x22, 7
+li x23, 8
+li x24, 9 
+li x25, 10 
+li x26, 11
+li x27, 12
+li x28, 13
+li x29, 14
+li x30, 15
+li x31, 16 
+swi x16, 1
+swi x17, 2 
+swi x18, 3
+swi x19, 4
+swi x20, 5 
+swi x21, 6
+swi x22, 7
+swi x23, 8
+swi x24, 9 
+swi x25, 10 
+swi x26, 11
+swi x27, 12
+swi x28, 13
+swi x29, 14
+swi x30, 15
+swi x31, 16 
+li x2, 16
+vlwi x1, 1 
+vsadd x1, x1, x0 

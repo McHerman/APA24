@@ -47,7 +47,7 @@
   {
     "class":"firrtl.annotations.MemoryFileInlineAnnotation",
     "target":"~APA24|InstuctionMemory>mem",
-    "filename":"Programs/MachineCode/Bitcrusher.mem",
+    "filename":"Programs/MachineCode/Memtest.mem",
     "hexOrBinary":"h"
   },
   {
