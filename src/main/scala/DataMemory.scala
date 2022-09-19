@@ -67,28 +67,6 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
 
   val rdwrPort = Memory(io.MemPort(Producer).Address + CntReg)
 
-  when(CompleteDelayInternal.asBool || CompleteDelayRegister.asBool){
-    CompleteDelayInternal := false.B
-    CompleteDelayInternal := false.B
-    io.MemPort(Producer).Completed := true.B
-    io.MemPort(Producer).ReadValid := true.B
-    
-
-    for(i <- 0 to 16){
-      switch(io.MemPort(Producer).Len){
-        is(i.U){
-          for(j <- 0 until (i - 1)){
-            io.MemPort(Producer).ReadData(j) := StorageReg(j)
-          }
-
-          io.MemPort(Producer).ReadData((i.U - 1.U)) := rdwrPort
-        }
-      }
-    }
-
-    Taken := 0.U
-  }
-
   // Address space partition
 
   //ReadInputSample := Memory.read(SampleAdress)
@@ -128,5 +106,33 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
       io.SPIMemPort.Len := io.MemPort(Producer).Len
 
     }
+  }
+
+
+  when(CompleteDelayInternal.asBool || CompleteDelayRegister.asBool){
+    CompleteDelayInternal := false.B
+    CompleteDelayInternal := false.B
+    io.MemPort(Producer).Completed := true.B
+    io.MemPort(Producer).ReadValid := true.B
+
+    CntReg := 0.U
+
+    when(io.MemPort(Producer).Len > 1.U){
+      for(i <- 0 to 16){
+        switch(io.MemPort(Producer).Len){
+          is(i.U){
+            for(j <- 0 until (i - 1)){
+              io.MemPort(Producer).ReadData(j) := StorageReg(j)
+            }
+
+            io.MemPort(Producer).ReadData((i.U - 1.U)) := rdwrPort
+          }
+        }
+      }
+    }.otherwise(
+      io.MemPort(Producer).ReadData(0) := rdwrPort
+    )
+
+    Taken := 0.U
   }
 }

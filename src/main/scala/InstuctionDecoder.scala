@@ -77,15 +77,11 @@ class InstuctionDecoder() extends Module {
       io.AImmidiate := io.Instruction(11,0)
       io.ASImmidiate := io.Instruction(11,0).asSInt
     }
-
-    //TODO fix scalar mem-access
-
     is(2.U){
       io.MemOp := io.Instruction(20)
       io.rd := io.Instruction(19,15)
       io.MemAdress := io.Instruction(14,0)
     } 
-
     is(3.U){
       io.COperation := io.Instruction(20,19)
       io.rs1 := io.Instruction(18,14)

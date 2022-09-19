@@ -31,17 +31,14 @@ public class Assembler {
                     /*
                     else if(data.contains("loadFir")){
                         int immediate = Integer.parseInt(data.substring(data.indexOf(",") + 2));
-
                         if(immediate > 1024){
                             int lower = immediate & 0b000000000111111111;
                             int upper = immediate & 0b111111111000000000;;
-
                             myWriter.write("li x5, " + lower + addedData + "\n");
                             myWriter.write("lui x5, " + (upper >> 9) + "\n");
                         }else{
                             myWriter.write("li x5, " + immediate + addedData + "\n");
                         }
-
                         String memorypos = data.substring(0, data.indexOf(",")).replaceAll(("[^0-9]"), "");
                         myWriter.write("swi x5, " + (Integer.parseInt(memorypos) + 1983) + "\n");
                         addedData = "";
@@ -96,7 +93,6 @@ public class Assembler {
                         myWriter.write(data + ", x0" + addedData + "\n");
                         addedData = "";
                     }
-
                     */
 
 
@@ -210,10 +206,7 @@ public class Assembler {
                 int penis = find_name(data);
 
                 /* 
-
                 System.out.println("penis: " + penis);
-
-
                 //System.out.println(penis);
                 System.out.println("String:" + Integer.toString(penis));
                 System.out.println("ex: " + String.format("0x%08X", penis));
@@ -248,10 +241,8 @@ public class Assembler {
                 or rd, rs1, rs2
                 xor rd, rs1, rs2
                 mac rd, rs1, rs2
-
                 lw rd, rs1
                 sw rd, rs1
-
                 */
 
         String AssemblyInst = instruction.substring(0, instruction.indexOf(" "));
@@ -546,14 +537,12 @@ public class Assembler {
                 int rs2 = find_register(instruction.substring(rs2_index));
 
                 /*
-
                 System.out.println(rd_index);
                 System.out.println(rd);
                 System.out.println(rs1_index);
                 System.out.println(rs1);
                 System.out.println(rs2_index);
                 System.out.println(rs2);
-
                 */
                 
 
@@ -565,11 +554,9 @@ public class Assembler {
                 int imm = find_register(instruction.substring(rd_index + 3));
 
                 /* 
-
                 if(instruction.contains("addi") && instruction.contains("-")){
                     imm = -imm;
                 }
-
                 */
 
                 return (rd << 12) + (imm & 0b111111111111);
@@ -612,14 +599,12 @@ public class Assembler {
                 rs2 = find_register(instruction.substring(rs2_index));
 
                 /*
-
                 System.out.println(rd_index);
                 System.out.println(rd);
                 System.out.println(rs1_index);
                 System.out.println(rs1);
                 System.out.println(rs2_index);
                 System.out.println(rs2);
-
                 */
                     
 
@@ -631,11 +616,9 @@ public class Assembler {
                 imm = find_register(instruction.substring(rd_index + 3));
 
                 /*
-
                 if(instruction.contains("addi") && instruction.contains("-")){
                     imm = -imm;
                 }
-
                 */
 
                 return (rd << 14) + ((imm & 0xfff) << 2);
@@ -661,14 +644,12 @@ public class Assembler {
                 rs2 = find_register(instruction.substring(rs2_index));
 
                 /*
-
                 System.out.println(rd_index);
                 System.out.println(rd);
                 System.out.println(rs1_index);
                 System.out.println(rs1);
                 System.out.println(rs2_index);
                 System.out.println(rs2);
-
                 */
                     
 

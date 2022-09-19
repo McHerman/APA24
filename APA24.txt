@@ -43,18 +43,18 @@ Type S2
 
 li rd, imm
 lui rd, imm 
-add rd, imm 
-sub rd, imm 
-mult rd, imm 
-sll rd, imm 
-srl rd, imm 
-sla rd, imm 
-sra rd, imm 
-and rd, imm 
-or rd, imm 
-xor rd, imm 
-fpmul rd, imm  
-mac rd, imm 
+addi rd, imm 
+subi rd, imm 
+multi rd, imm 
+slli rd, imm 
+srli rd, imm 
+slai rd, imm 
+srai rd, imm 
+andi rd, imm 
+ori rd, imm 
+xori rd, imm 
+fpmuli rd, imm  
+maci rd, imm 
 
 lwi rd, imm address
 lswi rd, imm address

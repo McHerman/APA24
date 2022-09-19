@@ -33,4 +33,9 @@ swi x30, 15
 swi x31, 16 
 li x2, 16
 vlwi x1, 1 
-vsadd x1, x1, x0 
+li x16, 2 
+addi x16, 1
+vswi x1, 17
+li x17, 25
+addi x16, 2 
+lwi x16, 32 

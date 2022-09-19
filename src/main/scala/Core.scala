@@ -43,6 +43,8 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
 
   val vx = Reg(Vec(8,Vec(16,UInt(24.W))))
 
+  val InstructionDelay = RegInit(0.U(24.W))
+
 
   x(0) := 0.U(16.W)
   x(3) := io.WaveIn
@@ -70,21 +72,36 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
 
   // Instruction Fetch
 
-  val Fixreg = RegInit(0.U(1.W))
-
   FetchStage.In.PC := x(1)
   FetchStage.io.Stall := ExecuteStage.io.Stall 
-  Fixreg := ExecuteStage.io.Stall 
 
-  when(!ExecuteStage.io.Stall){
-    x(1) := x(1) + 1.U
-  }
-  // easiest way to avoid pipelining error in memory access
-
-  // Instruction Decode
+  //InstructionDelay := FetchStage.Out.Instruction
 
   DecodeStage.In := FetchStage.Out
   DecodeStage.io.Stall := ExecuteStage.io.Stall
+
+  val StallDelay = RegInit(0.U(1.W))
+
+  StallDelay := ExecuteStage.io.Stall 
+
+  when(!ExecuteStage.io.Stall){
+    x(1) := x(1) + 1.U
+  }.otherwise{
+    DecodeStage.In.Instruction := InstructionDelay
+  }
+
+  when(StallDelay.asBool && !ExecuteStage.io.Stall){
+    DecodeStage.In.Instruction := InstructionDelay
+  }
+
+  when(!StallDelay.asBool && ExecuteStage.io.Stall){
+    InstructionDelay := FetchStage.Out.Instruction
+    DecodeStage.In := FetchStage.Out
+  }
+  
+  // easiest way to avoid pipelining error in memory access
+
+  // Instruction Decode
 
   // Execute
   // sends instruction from decode to execute
@@ -128,7 +145,6 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
           vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
         }
         
-
         //vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
       }
     }

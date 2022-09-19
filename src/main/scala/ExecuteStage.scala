@@ -116,11 +116,6 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
   val swStall = RegInit(0.U(1.W))
   val lwStall = RegInit(0.U(1.W))
 
-  // Backup Registers 
-  
-  // Okay so in case of a stall, the data in the Decode stage registers will be overwritten, even though the execute stage is not done computing the instructions. 
-  // To fix this bug, i originally inserted a bubble into the pipeline, so the execute stage could either complete the instruction or issue a stall.  
-
   // Data hazard protection
 
   rs1 := io.x(In.rs1)
@@ -281,7 +276,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
 
   VALU_Stall := ((vlen > Lanes.U) && (In.Type === 4.U || In.Type === 5.U || In.Type === 7.U))
 
-  A := (VALU_Stall || In.Type === 6.U || In.MemAddress > 1000000.U || io.MemTaken)
+  A := (VALU_Stall || In.Type === 6.U || In.MemAddress > Memsize.U || io.MemTaken)
   B := (VALU.io.Completed || io.MemPort.Completed)
   
 
@@ -414,8 +409,8 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
         ALU.io.Operation := 0.U
       }.otherwise{
           ALU.io.rs2 := In.AImmediate.asUInt
-          ALU.io.rs1 := In.rs1
-
+          ALU.io.rs1 := rd
+          
           ALU.io.Operation := (In.AOperation - 2.U)
       }
       WritebackMode := Arithmetic
@@ -601,7 +596,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
     is(6.U){
       io.MemPort.Address := VectorIn.MemAddress
       //io.MemPort.WriteData := vio.vx(VectorIn.vrs1)
-      io.MemPort.WriteData := vrs1
+      io.MemPort.WriteData := vrd
       io.MemPort.Enable := true.B
       io.MemPort.WriteEn := In.MemOp
       io.MemPort.Len := vio.len

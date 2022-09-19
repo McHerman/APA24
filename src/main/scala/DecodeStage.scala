@@ -5,7 +5,6 @@ class DecodeStage extends Module {
   val io = IO(new Bundle{
     val Clear = Input(Bool())
     val Stall = Input(Bool())
-    val MiniStall = Output(Bool())
   })
   val In = IO(new Bundle {
     val Instruction = Input(UInt(24.W))
@@ -37,8 +36,6 @@ class DecodeStage extends Module {
   })
 
   // Init
-
-  io.MiniStall := false.B
 
   val InstDec = Module(new InstuctionDecoder())
 
