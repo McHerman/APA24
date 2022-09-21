@@ -52,8 +52,12 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
     val In = Input(UInt(24.W))
     val Out = Output(UInt(24.W))
   })
-  val SPI = IO(new Bundle {
-    val SPIMemPort = new MemPort
+  val SPI_Out = IO(new Bundle{
+    val SCLK = Output(Bool())
+    val CE = Output(Bool())
+    val SO = Input(Vec(4,Bool()))
+    val SI = Output(Vec(4,Bool()))
+    val Drive = Output(Bool())
   })
 
   val dedupBlock = WireInit(Program.hashCode.S)
@@ -67,6 +71,7 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
 
   val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes, Memsize))
   val DataMemory = Module(new DataMemory(1, Memsize, SPIRAM_Offset))
+  val SPI = Module(new SPIArbiter(1))
 
   // IO
 
@@ -79,7 +84,11 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
   Core.io.MemPort <> DataMemory.io.MemPort(0)
   Core.io.MemTaken := DataMemory.io.Taken
 
-  SPI.SPIMemPort <> DataMemory.io.SPIMemPort
+  SPI.io.MemPort(0) <> DataMemory.io.SPIMemPort
+  SPI_Out <> SPI.SPI
+
+
+  
 }
 
 // generate Verilog

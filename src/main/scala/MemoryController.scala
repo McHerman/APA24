@@ -62,10 +62,10 @@ class MemoryController(Count: Int) extends Module {
   val CntReg = RegInit(0.U(14.W))
   val VecCntReg = RegInit(0.U(4.W))
 
-  val WriteDataReg = RegInit(0.U(16.W))
+  val WriteDataReg = Reg(Vec(16,UInt(24.W)))
   val AddressReg = RegInit(0.U(24.W))
 
-  val SPI_mode = RegInit(0.U(1.W))
+  val SPI_mode = RegInit(1.U(1.W)) // 0 for serial, 1 for quad SPI 
 
   // Clock stuff
 
@@ -215,7 +215,16 @@ class MemoryController(Count: Int) extends Module {
         SPI.CE := false.B
         ClockReset := true.B
         AddressReg := io.Address
-        WriteDataReg := io.WriteData
+
+        
+
+        for(i <- 0 until 16){
+          WriteDataReg(i) := io.WriteData(i)
+        }
+
+        
+
+        //WriteDataReg := io.WriteData
       }
     }
     is(read) {

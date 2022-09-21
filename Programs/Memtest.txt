@@ -35,7 +35,4 @@ li x2, 16
 vlwi x1, 1 
 li x16, 2 
 addi x16, 1
-vswi x1, 17
-li x17, 25
-addi x16, 2 
-lwi x16, 32 
+vswi x1, 4096

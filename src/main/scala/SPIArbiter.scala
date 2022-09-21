@@ -17,17 +17,27 @@ class SPIArbiter(Memports: Int) extends Module {
 
   // Defaults
 
-  for(i <- 0 until Memports){
-    io.MemPort(i).ReadData := 0.U
-    io.MemPort(i).Completed := false.B
-  }
-
   val ExternalMemory = Module(new MemoryController(0))
 
-  ExternalMemory.io.WriteData := 0.U
+  for(i <- 0 until Memports){
+    for(j <- 0 until 16){
+      io.MemPort(i).ReadData(j) := 0.U
+    }
+
+    io.MemPort(i).Completed := false.B
+    io.MemPort(i).ReadValid := false.B
+
+    //io.MemPort(i).Ready := ExternalMemory.io.Ready
+  }
+
+  for(i <- 0 until 16){
+    ExternalMemory.io.WriteData(i) := 0.U  
+  }
+
   ExternalMemory.io.ReadEnable := false.B
   ExternalMemory.io.WriteEnable := false.B
   ExternalMemory.io.Address := 0.U
+  ExternalMemory.io.Len := 0.U
   ExternalMemory.SPI <> SPI
 
   val Producer = Wire(UInt(2.W))
@@ -59,17 +69,20 @@ class SPIArbiter(Memports: Int) extends Module {
       when(ExternalMemory.io.Ready){
         ExternalMemory.io.WriteEnable := true.B
         ExternalMemory.io.WriteData := io.MemPort(Producer).WriteData
-    }
+        ExternalMemory.io.Len := io.MemPort(Producer).Len
+      }
 
       io.MemPort(Producer).Completed := ExternalMemory.io.Completed
     }.otherwise{
       when(ExternalMemory.io.Ready){
         ExternalMemory.io.ReadEnable := true.B
-    }
+      }
+
+      ExternalMemory.io.Len := io.MemPort(Producer).Len
 
       io.MemPort(Producer).Completed := ExternalMemory.io.Completed
       io.MemPort(Producer).ReadData := ExternalMemory.io.ReadData
-      
+      io.MemPort(Producer).ReadValid := ExternalMemory.io.Completed
     }
   }
 }
