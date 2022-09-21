@@ -56,6 +56,8 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
 
   FetchStage.io.Stall := false.B
   FetchStage.io.Clear := false.B
+  FetchStage.io.WriteEn := false.B
+  FetchStage.io.WriteData := 0.U
 
   DecodeStage.io.Stall := false.B
   DecodeStage.io.Clear := false.B
@@ -80,6 +82,12 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
   DecodeStage.In := FetchStage.Out
   DecodeStage.io.Stall := ExecuteStage.io.Stall
 
+  when(!ExecuteStage.io.Stall){
+    x(1) := x(1) + 1.U
+  }
+
+  /*
+
   val StallDelay = RegInit(0.U(1.W))
 
   StallDelay := ExecuteStage.io.Stall 
@@ -98,6 +106,8 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
     InstructionDelay := FetchStage.Out.Instruction
     DecodeStage.In := FetchStage.Out
   }
+
+  */
   
   // easiest way to avoid pipelining error in memory access
 
