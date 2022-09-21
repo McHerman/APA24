@@ -62,6 +62,7 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
       Taken := true.B
       Producer := i.U
       ProducerReg := i.U
+      CntReg := 0.U
     }
   }
 
@@ -87,11 +88,10 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
         //CompleteDelayInternal := true.
       }
 
-      CntReg := CntReg + 1.U
-
       when(CntReg === (io.MemPort(Producer).Len - 1.U)){
-        CntReg := 0.U
         CompleteDelayInternal := true.B
+      }.otherwise{
+        CntReg := CntReg + 1.U
       }
 
     }.otherwise{ // External Memory

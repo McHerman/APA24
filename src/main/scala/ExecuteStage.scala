@@ -598,7 +598,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
       //io.MemPort.WriteData := vio.vx(VectorIn.vrs1)
       io.MemPort.WriteData := vrd
       io.MemPort.Enable := true.B
-      io.MemPort.WriteEn := In.MemOp
+      io.MemPort.WriteEn := VectorIn.MemOp
       io.MemPort.Len := vio.len
 
       switch(VectorIn.MemOp){
