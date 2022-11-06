@@ -1,0 +1,22 @@
+<APA24>
+  <Core top="true" id="0">
+    <Program>Memtest</Program>
+    <Inputs>
+      <Input node="In"/>
+    </Inputs>
+    <VALU lanes="4"/>
+    <Memory>
+      <Cache hasCache="true">
+        <Size bit="10"/>
+      </Cache>
+      <BRAM size="0"/>
+      <DRAM offset="0"/>
+    </Memory>
+  </Core>
+  <InputController type="DS"/>
+  <OutputController type="DS"/>
+  <TEST>
+    <CLK count="23"/>
+    <SOUND sample="sample"/>
+  </TEST>
+</APA24>
