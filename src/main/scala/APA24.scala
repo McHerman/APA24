@@ -40,12 +40,14 @@ object Text{
 
 class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
 
-  val Program = (xml \\ "Core" \ "Program").text
-  var Memsize = (xml \\ "Core" \\ "BRAM" \\ "@size").text.toInt
-  var SPIRAM_Offset = (xml \\ "Core" \\ "DRAM" \\ "@offset").text.toInt  
+  val Program = (xml \\ "Core" \ "Program").text 
   var Lanes = (xml \\ "Core" \\ "VALU" \\ "@lanes").text.toInt
+  var HasCache = (xml \\ "Core" \\ "Memory" \\ "Cache" \\ "@hasCache").text.toBoolean
+  var CacheSize = (xml \\ "Core" \\ "Memory" \\ "Cache" \\ "Size" \\"@bit").text.toInt
 
-
+  var Memsize = (xml \\ "Core" \\ "Memory" \\ "BRAM" \\ "@size").text.toInt
+  var SPIRAM_Offset = (xml \\ "Core" \\ "Memory" \\ "DRAM" \\ "@offset").text.toInt 
+  
 
   val io = IO(new Bundle {
     //val Sub_IO = new CAP_IO
@@ -70,24 +72,33 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
 
 
   val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes, Memsize))
-  val DataMemory = Module(new DataMemory(1, Memsize, SPIRAM_Offset))
   val SPI = Module(new SPIArbiter(1))
+
+
+  if(HasCache){
+    val Cache = Module(new CacheMemory(1,CacheSize))
+
+    Core.io.MemPort <> Cache.io.MemPort(0)
+    Core.io.MemTaken := false.B
+
+    SPI.io.MemPort(0) <> Cache.io.SPIMemPort
+  }else{
+    val DataMemory = Module(new DataMemory(1, Memsize, SPIRAM_Offset))
+    
+    Core.io.MemPort <> DataMemory.io.MemPort(0)
+    Core.io.MemTaken := DataMemory.io.Taken
+
+    SPI.io.MemPort(0) <> DataMemory.io.SPIMemPort
+  }
 
   // IO
 
   Core.io.WaveIn := io.In
   io.Out := Core.io.WaveOut
 
-
   // Interconnections
 
-  Core.io.MemPort <> DataMemory.io.MemPort(0)
-  Core.io.MemTaken := DataMemory.io.Taken
-
-  SPI.io.MemPort(0) <> DataMemory.io.SPIMemPort
   SPI_Out <> SPI.SPI
-
-
   
 }
 
@@ -96,12 +107,11 @@ object DSP extends App {
 
   //val Config = args(0)
 
-  val Config = "config/APA24.xml"
+  val Config = "config/APA24ex.xml"
 
   println(Text.name + "\n")
 
   val xml = XML.loadFile(Config)
-
   (new chisel3.stage.ChiselStage).emitVerilog(new APA24(100000000, xml))
 }
 
