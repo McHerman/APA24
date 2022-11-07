@@ -12,24 +12,24 @@ object CacheStates {
   val CacheRead = "h4".U(3.W)
 }
 
-class Cache(Bitsize: Int) extends Module {
+class Cache(Bitsize: Int, VectorRegisterLength: Int) extends Module {
   val io = IO(new Bundle {
-    val MemPort = Flipped(new MemPort)
-    val EXT = new MemPort
+    val MemPort = Flipped(new MemPort(VectorRegisterLength))
+    val EXT = new MemPort(VectorRegisterLength)
   })
 
   val StateReg = RegInit(0.U(3.W))
 
   // Module Definitions
 
-  for(j <- 0 until 16){
+  for(j <- 0 until VectorRegisterLength){
     io.MemPort.ReadData(j) := 0.U
   }
 
   io.MemPort.Completed := false.B
   io.MemPort.ReadValid := false.B
 
-  for(i <- 0 until 16){
+  for(i <- 0 until VectorRegisterLength){
     io.EXT.WriteData(i) := 0.U
   }
 

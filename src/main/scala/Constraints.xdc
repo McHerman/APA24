@@ -11,9 +11,9 @@ set_property PACKAGE_PIN W5 [get_ports clock]
 # Switches
 #set_property PACKAGE_PIN V17 [get_ports {sw[0]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {sw[0]}]
-#set_property PACKAGE_PIN V16 [get_ports {sw[1]}]					
+#set_property PACKAGE_PIN VVectorRegisterLength [get_ports {sw[1]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {sw[1]}]
-#set_property PACKAGE_PIN W16 [get_ports {sw[2]}]					
+#set_property PACKAGE_PIN WVectorRegisterLength [get_ports {sw[2]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {sw[2]}]
 #set_property PACKAGE_PIN W17 [get_ports {sw[3]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {sw[3]}]
@@ -44,7 +44,7 @@ set_property PACKAGE_PIN W5 [get_ports clock]
  
 
 # LEDs
-#set_property PACKAGE_PIN U16 [get_ports {LED[0]}]					
+#set_property PACKAGE_PIN UVectorRegisterLength [get_ports {LED[0]}]					
 #	set_property IOSTANDARD LVCMOS33 [get_ports {LED[0]}]
 #set_property PACKAGE_PIN E19 [get_ports {LED[1]}]					
 #	set_property IOSTANDARD LVCMOS33 [get_ports {LED[1]}]
@@ -154,13 +154,13 @@ set_property PACKAGE_PIN U18 [get_ports reset]
 #set_property PACKAGE_PIN A14 [get_ports {io_ADIn}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JB[0]}]
 ##Sch name = JB2
-#set_property PACKAGE_PIN A16 [get_ports {io_ADOut}]					
+#set_property PACKAGE_PIN AVectorRegisterLength [get_ports {io_ADOut}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JB[1]}]
 ##Sch name = JB3
 #set_property PACKAGE_PIN B15 [get_ports {io_DAOut}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JB[2]}]
 ##Sch name = JB4
-#set_property PACKAGE_PIN B16 [get_ports {JB[3]}]					
+#set_property PACKAGE_PIN BVectorRegisterLength [get_ports {JB[3]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JB[3]}]
 ##Sch name = JB7
 #set_property PACKAGE_PIN A15 [get_ports {JB[4]}]					
@@ -172,7 +172,7 @@ set_property PACKAGE_PIN U18 [get_ports reset]
 #set_property PACKAGE_PIN C15 [get_ports {JB[6]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JB[6]}]
 ##Sch name = JB10 
-#set_property PACKAGE_PIN C16 [get_ports {JB[7]}]					
+#set_property PACKAGE_PIN CVectorRegisterLength [get_ports {JB[7]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JB[7]}]
  
 

@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class DecodeStage extends Module {
+class DecodeStage(VectorRegisterLength: Int) extends Module {
   val io = IO(new Bundle{
     val Clear = Input(Bool())
     val Stall = Input(Bool())
@@ -37,7 +37,7 @@ class DecodeStage extends Module {
 
   // Init
 
-  val InstDec = Module(new InstuctionDecoder())
+  val InstDec = Module(new InstuctionDecoder(VectorRegisterLength))
 
   val AddressReg = RegInit(0.U(10.W))
   val TypeReg = RegInit(0.U(3.W))

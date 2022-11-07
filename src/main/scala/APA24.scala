@@ -7,21 +7,22 @@ import java.io.File
 import java.util.Arrays;
 import Assembler._
 
-class MemPort extends Bundle{
-  val Address = Output(UInt(24.W))
-  val WriteData = Output(Vec(16,UInt(24.W)))
-  val Enable = Output(Bool())
-  val Len = Output(UInt(5.W))
-  val WriteEn = Output(Bool())
-
-  val ReadData = Input(Vec(16,UInt(24.W)))
-  val Completed = Input(Bool())
-  val ReadValid = Input(Bool())
-}
-
 class CAP_IO extends Bundle{
   val In = Input(UInt(24.W))
   val Out = Output(UInt(24.W))
+}
+
+
+class MemPort(VectorRegisterLength: Int) extends Bundle{
+  val Address = Output(UInt(24.W))
+  val WriteData = Output(Vec(VectorRegisterLength,UInt(24.W)))
+  val Enable = Output(Bool())
+  val Len = Output(UInt(6.W))
+  val WriteEn = Output(Bool())
+
+  val ReadData = Input(Vec(VectorRegisterLength,UInt(24.W)))
+  val Completed = Input(Bool())
+  val ReadValid = Input(Bool())
 }
 
 object Text{
@@ -38,16 +39,21 @@ object Text{
                #""".stripMargin('#')
 }
 
+
+
 class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
 
   val Program = (xml \\ "Core" \ "Program").text 
-  var Lanes = (xml \\ "Core" \\ "VALU" \\ "@lanes").text.toInt
+
+  var Lanes = (xml \\ "Core" \\ "Vector" \\ "VALU" \\ "@lanes").text.toInt
+  var VectorRegisters = (xml \\ "Core" \\ "Vector" \\ "Registers" \\ "@number").text.toInt
+  var VectorRegisterLength = (xml \\ "Core" \\ "Vector" \\ "Registers" \\ "@length").text.toInt
+
   var HasCache = (xml \\ "Core" \\ "Memory" \\ "Cache" \\ "@hasCache").text.toBoolean
   var CacheSize = (xml \\ "Core" \\ "Memory" \\ "Cache" \\ "Size" \\"@bit").text.toInt
 
   var Memsize = (xml \\ "Core" \\ "Memory" \\ "BRAM" \\ "@size").text.toInt
   var SPIRAM_Offset = (xml \\ "Core" \\ "Memory" \\ "DRAM" \\ "@offset").text.toInt 
-  
 
   val io = IO(new Bundle {
     //val Sub_IO = new CAP_IO
@@ -71,19 +77,19 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
   read_assembly(Program);
 
 
-  val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes, Memsize))
-  val SPI = Module(new SPIArbiter(1))
+  val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes, VectorRegisters, VectorRegisterLength, Memsize))
+  val SPI = Module(new SPIArbiter(1,VectorRegisterLength))
 
 
   if(HasCache){
-    val Cache = Module(new CacheMemory(1,CacheSize))
+    val Cache = Module(new CacheMemory(1,CacheSize,VectorRegisterLength))
 
     Core.io.MemPort <> Cache.io.MemPort(0)
     Core.io.MemTaken := false.B
 
     SPI.io.MemPort(0) <> Cache.io.SPIMemPort
   }else{
-    val DataMemory = Module(new DataMemory(1, Memsize, SPIRAM_Offset))
+    val DataMemory = Module(new DataMemory(1, Memsize ,VectorRegisterLength, SPIRAM_Offset))
     
     Core.io.MemPort <> DataMemory.io.MemPort(0)
     Core.io.MemTaken := DataMemory.io.Taken

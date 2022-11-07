@@ -3,9 +3,9 @@ import chisel3.util._
 import chisel3.experimental.Analog
 import chisel3.util.experimental.loadMemoryFromFile
 
-class SPIArbiter(Memports: Int) extends Module {
+class SPIArbiter(Memports: Int, VectorRegisterLength: Int) extends Module {
   val io = IO(new Bundle {
-    val MemPort = Vec(Memports,Flipped(new MemPort))
+    val MemPort = Vec(Memports,Flipped(new MemPort(VectorRegisterLength)))
   })
   val SPI = IO(new Bundle{
     val SCLK = Output(Bool())
@@ -17,10 +17,10 @@ class SPIArbiter(Memports: Int) extends Module {
 
   // Defaults
 
-  val ExternalMemory = Module(new MemoryController(0))
+  val ExternalMemory = Module(new MemoryController(0,VectorRegisterLength))
 
   for(i <- 0 until Memports){
-    for(j <- 0 until 16){
+    for(j <- 0 until VectorRegisterLength){
       io.MemPort(i).ReadData(j) := 0.U
     }
 
@@ -30,7 +30,7 @@ class SPIArbiter(Memports: Int) extends Module {
     //io.MemPort(i).Ready := ExternalMemory.io.Ready
   }
 
-  for(i <- 0 until 16){
+  for(i <- 0 until VectorRegisterLength){
     ExternalMemory.io.WriteData(i) := 0.U  
   }
 

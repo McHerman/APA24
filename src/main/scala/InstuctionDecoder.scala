@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class InstuctionDecoder() extends Module {
+class InstuctionDecoder(VectorRegisterLength: Int) extends Module {
   val io = IO(new Bundle {
     val Instruction = Input(UInt(24.W))
 
@@ -38,7 +38,7 @@ class InstuctionDecoder() extends Module {
     val AOperation = Output(UInt(4.W))
 
     val MemOp = Output(UInt(2.W))
-    val MemAddress = Output(UInt(16.W))
+    val MemAddress = Output(UInt(VectorRegisterLength.W))
   })
 
   io.Type := io.Instruction(23,21)
@@ -67,13 +67,13 @@ class InstuctionDecoder() extends Module {
   switch(io.Instruction(23,21)){
     is(0.U){
       io.AOperation := io.Instruction(20,17)
-      io.rd := io.Instruction(16,12)
+      io.rd := io.Instruction(VectorRegisterLength,12)
       io.rs1 := io.Instruction(11,7)
       io.rs2 := io.Instruction(6,2)
     }
     is(1.U){
       io.AOperation := io.Instruction(20,17)
-      io.rd := io.Instruction(16,12)
+      io.rd := io.Instruction(VectorRegisterLength,12)
       io.AImmidiate := io.Instruction(11,0)
       io.ASImmidiate := io.Instruction(11,0).asSInt
     }
@@ -93,24 +93,24 @@ class InstuctionDecoder() extends Module {
 
     is(4.U){
       VectorIO.AOperation := io.Instruction(20,17)
-      VectorIO.vrd := io.Instruction(16,14)
+      VectorIO.vrd := io.Instruction(VectorRegisterLength,14)
       VectorIO.vrs1 := io.Instruction(13,11)
       VectorIO.vrs2 := io.Instruction(12,8)
     }
     is(5.U){
       VectorIO.AOperation := io.Instruction(20,17)
-      VectorIO.vrd := io.Instruction(16,14)
+      VectorIO.vrd := io.Instruction(VectorRegisterLength,14)
       VectorIO.AImmediate := io.Instruction(13,2)
       VectorIO.ASImmediate := io.Instruction(13,2).asSInt
     }
     is(6.U){
       VectorIO.MemOp := io.Instruction(20)
       VectorIO.vrd := io.Instruction(19,17)
-      VectorIO.MemAddress := io.Instruction(16,1)
+      VectorIO.MemAddress := io.Instruction(VectorRegisterLength,1)
     }
     is(7.U){
       VectorIO.AOperation := io.Instruction(20,17)
-      VectorIO.vrd := io.Instruction(16,13)
+      VectorIO.vrd := io.Instruction(VectorRegisterLength,13)
       VectorIO.vrs1 := io.Instruction(12,9)
       //VectorIO.vrs2 := io.Instruction(12,8)
       VectorIO.rs := io.Instruction(8,4)

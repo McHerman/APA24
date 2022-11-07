@@ -4,7 +4,10 @@
     <Inputs>
       <Input node="In"/>
     </Inputs>
-    <VALU lanes="4"/>
+    <Vector>
+      <VALU lanes="4"/>
+      <Registers number="8" length="16"/>
+    </Vector>
     <Memory>
       <Cache hasCache="true">
         <Size bit="10"/>

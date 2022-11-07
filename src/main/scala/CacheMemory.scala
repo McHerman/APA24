@@ -3,10 +3,10 @@ import chisel3.util._
 import chisel3.experimental.Analog
 import chisel3.util.experimental.loadMemoryFromFile
 
-class CacheMemory(Memports: Int, CacheSize: Int) extends Module {
+class CacheMemory(Memports: Int, CacheSize: Int, VectorRegisterLength: Int) extends Module {
   val io = IO(new Bundle {
-    val MemPort = Vec(Memports,Flipped(new MemPort))
-    val SPIMemPort = new MemPort
+    val MemPort = Vec(Memports,Flipped(new MemPort(VectorRegisterLength)))
+    val SPIMemPort = new MemPort(VectorRegisterLength)
     val Taken = Output(Bool())
   })
 
@@ -14,16 +14,13 @@ class CacheMemory(Memports: Int, CacheSize: Int) extends Module {
 
   //val Memory = SyncReadMem(Memsize, UInt(24.W))
 
-  val Cache = Module(new Cache(CacheSize))
+  val Cache = Module(new Cache(CacheSize, VectorRegisterLength))
   //val SPIArbiter = Module(new SPIArbiter(1))
 
   // Defaults
 
-  val CntReg = RegInit(0.U(5.W))
-  val StorageReg = Reg(Vec(16,UInt(24.W)))
-
   for(i <- 0 until Memports){
-    for(j <- 0 until 16){
+    for(j <- 0 until VectorRegisterLength){
       io.MemPort(i).ReadData(j) := 0.U
     }
 
@@ -53,7 +50,7 @@ class CacheMemory(Memports: Int, CacheSize: Int) extends Module {
       Taken := true.B
       Producer := i.U
       ProducerReg := i.U
-      CntReg := 0.U
+      //CntReg := 0.U
     }
   }
 

@@ -12,12 +12,12 @@ class ALU_IO extends Bundle{
   val Out = Output(UInt(24.W))
 }
 
-class VALU(Lanes: Int) extends Module {
+class VALU(Lanes: Int, VectorRegisterLength: Int) extends Module {
   val io = IO(new Bundle {
     val en = Input(Bool())
-    val vrs1 = Input(Vec(16,UInt(24.W)))
-    val vrs2 = Input(Vec(16,UInt(24.W)))
-    val vrd = Input(Vec(16,UInt(24.W)))
+    val vrs1 = Input(Vec(VectorRegisterLength,UInt(24.W)))
+    val vrs2 = Input(Vec(VectorRegisterLength,UInt(24.W)))
+    val vrd = Input(Vec(VectorRegisterLength,UInt(24.W)))
 
     val len = Input(UInt(5.W))
 
@@ -26,7 +26,7 @@ class VALU(Lanes: Int) extends Module {
     val Operation = Input(UInt(8.W))
 
     val Completed = Output(Bool())
-    val Out = Output(Vec(16,UInt(24.W)))
+    val Out = Output(Vec(VectorRegisterLength,UInt(24.W)))
   })
 
 
@@ -34,7 +34,7 @@ class VALU(Lanes: Int) extends Module {
 
   val LaneIO = Wire(Vec(Lanes, new ALU_IO))
 
-  val OutReg = Reg(Vec(16,UInt(24.W)))
+  val OutReg = Reg(Vec(VectorRegisterLength,UInt(24.W)))
 
   io.Out := OutReg
   io.Completed := false.B
@@ -93,10 +93,10 @@ class VALU(Lanes: Int) extends Module {
 
     /*
 
-    for(i <- 0 until 16){
+    for(i <- 0 until VectorRegisterLength){
       switch(io.len){
         is(i.U){
-          for(j <- i until 16){
+          for(j <- i until VectorRegisterLength){
               OutReg(j.U) := 0.U 
           }
         }

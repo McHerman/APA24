@@ -3,15 +3,15 @@ import chisel3.util._
 
 class BranchComp() extends Module {
   val io = IO(new Bundle {
-    val rs2 = Input(UInt(18.W))
-    val rs1 = Input(UInt(18.W))
-    val PC = Input(UInt(18.W))
+    val rs2 = Input(UInt(24.W))
+    val rs1 = Input(UInt(24.W))
+    val PC = Input(UInt(24.W))
     val Offset = Input(SInt(11.W))
 
     val Operation = Input(UInt(2.W))
 
     val CondCheck = Output(Bool())
-    val Out = Output(UInt(18.W))
+    val Out = Output(UInt(24.W))
   })
 
   val CondCheck = Wire(Bool())

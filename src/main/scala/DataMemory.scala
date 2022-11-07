@@ -3,10 +3,10 @@ import chisel3.util._
 import chisel3.experimental.Analog
 import chisel3.util.experimental.loadMemoryFromFile
 
-class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module {
+class DataMemory(Memports: Int, Memsize: Int, VectorRegisterLength: Int, SPIRAM_Offset: Int) extends Module {
   val io = IO(new Bundle {
-    val MemPort = Vec(Memports,Flipped(new MemPort))
-    val SPIMemPort = new MemPort
+    val MemPort = Vec(Memports,Flipped(new MemPort(VectorRegisterLength)))
+    val SPIMemPort = new MemPort(VectorRegisterLength)
     val Taken = Output(Bool())
   })
 
@@ -21,10 +21,10 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
   //val CompleteDelayExternal = RegInit(0.U(1.W))
 
   val CntReg = RegInit(0.U(5.W))
-  val StorageReg = Reg(Vec(16,UInt(24.W)))
+  val StorageReg = Reg(Vec(VectorRegisterLength,UInt(24.W)))
 
   for(i <- 0 until Memports){
-    for(j <- 0 until 16){
+    for(j <- 0 until VectorRegisterLength){
       io.MemPort(i).ReadData(j) := 0.U
     }
 
@@ -36,7 +36,7 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
   io.SPIMemPort.Enable := false.B
   io.SPIMemPort.Address := 0.U
 
-  for(i <- 0 until 16){
+  for(i <- 0 until VectorRegisterLength){
     io.SPIMemPort.WriteData(i) := 0.U
   }
   
@@ -118,7 +118,7 @@ class DataMemory(Memports: Int, Memsize: Int, SPIRAM_Offset: Int) extends Module
     CntReg := 0.U
 
     when(io.MemPort(Producer).Len > 1.U){
-      for(i <- 0 to 16){
+      for(i <- 0 to VectorRegisterLength){
         switch(io.MemPort(Producer).Len){
           is(i.U){
             for(j <- 0 until (i - 1)){

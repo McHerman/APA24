@@ -15,20 +15,20 @@ object Core{
   val vMemoryI = 8.U
 }
 
-class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
+class Core(Program: String, Lanes: Int, VectorRegisters: Int, VectorRegisterLength: Int, Memsize: Int) extends Module {
   val io = IO(new Bundle {
-    val WaveIn = Input(UInt(18.W))
-    val WaveOut = Output(UInt(18.W))
+    val WaveIn = Input(UInt(24.W))
+    val WaveOut = Output(UInt(24.W))
 
-    val MemPort = new MemPort
+    val MemPort = new MemPort(VectorRegisterLength)
     val MemTaken = Input(Bool())
   })
 
   // Initializing pipeline 
 
   val FetchStage = Module(new FetchStage(Program))
-  val DecodeStage = Module(new DecodeStage)
-  val ExecuteStage = Module(new ExecuteStage(Lanes, Memsize))
+  val DecodeStage = Module(new DecodeStage(VectorRegisterLength))
+  val ExecuteStage = Module(new ExecuteStage(Lanes, VectorRegisters, VectorRegisterLength, Memsize))
 
   //Initializing Registers
   //x = register bank
@@ -41,18 +41,17 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
  
   val x = Reg(Vec(32,UInt(24.W)))
 
-  val vx = Reg(Vec(8,Vec(16,UInt(24.W))))
+  val vx = Reg(Vec(VectorRegisters,Vec(VectorRegisterLength,UInt(24.W))))
 
   val InstructionDelay = RegInit(0.U(24.W))
 
 
-  x(0) := 0.U(16.W)
+  x(0) := 0.U(VectorRegisterLength.W)
   x(3) := io.WaveIn
   io.WaveOut := x(4)
   
-
   // Default
-  //asserting fetch decode to be false by default
+  // asserting fetch decode to be false by default
 
   FetchStage.io.Stall := false.B
   FetchStage.io.Clear := false.B
@@ -85,31 +84,6 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
   when(!ExecuteStage.io.Stall){
     x(1) := x(1) + 1.U
   }
-
-  /*
-
-  val StallDelay = RegInit(0.U(1.W))
-
-  StallDelay := ExecuteStage.io.Stall 
-
-  when(!ExecuteStage.io.Stall){
-    x(1) := x(1) + 1.U
-  }.otherwise{
-    DecodeStage.In.Instruction := InstructionDelay
-  }
-
-  when(StallDelay.asBool && !ExecuteStage.io.Stall){
-    DecodeStage.In.Instruction := InstructionDelay
-  }
-
-  when(!StallDelay.asBool && ExecuteStage.io.Stall){
-    InstructionDelay := FetchStage.Out.Instruction
-    DecodeStage.In := FetchStage.Out
-  }
-
-  */
-  
-  // easiest way to avoid pipelining error in memory access
 
   // Instruction Decode
 
@@ -154,8 +128,6 @@ class Core(Program: String, Lanes: Int, Memsize: Int) extends Module {
         when(io.MemPort.ReadValid){
           vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
         }
-        
-        //vx(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData
       }
     }
 

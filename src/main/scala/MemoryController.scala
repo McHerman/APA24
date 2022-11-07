@@ -14,13 +14,13 @@ object SPI_CMDS {
   val CMDQPIWrite = "h38".U(8.W)
 }
 
-class MemoryController(Count: Int) extends Module {
+class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
   val io = IO(new Bundle {
     val ReadEnable = Input(Bool())
     val WriteEnable = Input(Bool())
     val Address = Input(UInt(24.W))
-    val WriteData = Input(Vec(16,UInt(24.W)))
-    val ReadData = Output(Vec(16,UInt(24.W)))
+    val WriteData = Input(Vec(VectorRegisterLength,UInt(24.W)))
+    val ReadData = Output(Vec(VectorRegisterLength,UInt(24.W)))
     val Len = Input(UInt(4.W))
 
     val Ready = Output(Bool())
@@ -37,11 +37,11 @@ class MemoryController(Count: Int) extends Module {
 
   //Register and state machine definitions.
 
-  //val DataReg = RegInit(0.U(16.W))
+  //val DataReg = RegInit(0.U(VectorRegisterLength.W))
 
   //val DataReg = RegInit(0.U(384.W))
 
-  val DataReg = Reg(Vec(16,UInt(24.W)))
+  val DataReg = Reg(Vec(VectorRegisterLength,UInt(24.W)))
 
   SPI.CE := true.B
   io.Completed := false.B
@@ -62,7 +62,7 @@ class MemoryController(Count: Int) extends Module {
   val CntReg = RegInit(0.U(14.W))
   val VecCntReg = RegInit(0.U(4.W))
 
-  val WriteDataReg = Reg(Vec(16,UInt(24.W)))
+  val WriteDataReg = Reg(Vec(VectorRegisterLength,UInt(24.W)))
   val AddressReg = RegInit(0.U(24.W))
 
   val SPI_mode = RegInit(1.U(1.W)) // 0 for serial, 1 for quad SPI 
@@ -218,7 +218,7 @@ class MemoryController(Count: Int) extends Module {
 
         
 
-        for(i <- 0 until 16){
+        for(i <- 0 until VectorRegisterLength){
           WriteDataReg(i) := io.WriteData(i)
         }
 

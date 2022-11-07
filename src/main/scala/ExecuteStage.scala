@@ -2,16 +2,16 @@ import chisel3._
 import chisel3.util._
 import Core._
 
-class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
+class ExecuteStage(Lanes: Int, VectorRegisters: Int, VectorRegisterLength: Int, Memsize: Int) extends Module {
   val io = IO(new Bundle {
     val x = Input(Vec(32,UInt(24.W)))
-    val MemPort = new MemPort
+    val MemPort = new MemPort(VectorRegisterLength)
     val Stall = Output(Bool())
     val Clear = Input(Bool())
     val MemTaken = Input(Bool())
   })
   val vio = IO(new Bundle {
-    val vx = Input(Vec(8,Vec(16,UInt(24.W))))
+    val vx = Input(Vec(VectorRegisters,Vec(VectorRegisterLength,UInt(24.W))))
     val len = Input(UInt(24.W))
   })
   val In = IO(new Bundle {
@@ -37,13 +37,13 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
     val ASImmediate = Input(SInt(12.W))
     val AOperation = Input(UInt(4.W))
     val MemOp = Input(UInt(1.W))
-    val MemAddress = Input(UInt(16.W))
+    val MemAddress = Input(UInt(VectorRegisterLength.W))
   })
   val Out = IO(new Bundle {
     val WritebackMode = Output(UInt(4.W))
     val WritebackRegister = Output(UInt(5.W))
     val ALUOut = Output(UInt(24.W))
-    val VALUOut = Output(Vec(16,UInt(24.W)))
+    val VALUOut = Output(Vec(VectorRegisterLength,UInt(24.W)))
     val JumpValue = Output(UInt(18.W))
     val readValid = Output(UInt(1.W))
   })
@@ -53,7 +53,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
   
   val ALU = Module(new ALU())
   val BranchComp = Module(new BranchComp())
-  val VALU = Module(new VALU(Lanes))
+  val VALU = Module(new VALU(Lanes,VectorRegisterLength))
 
   // Default
 
@@ -62,7 +62,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
   io.MemPort.WriteEn := false.B
   io.MemPort.Len := 0.U
 
-  for(i <- 0 until 16){
+  for(i <- 0 until VectorRegisterLength){
     io.MemPort.WriteData(i) := 0.U
   }
 
@@ -73,7 +73,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
   ALU.io.rd := 0.U
   ALU.io.Operation := 0.U
 
-  for(i <- 0 until 16){
+  for(i <- 0 until VectorRegisterLength){
     VALU.io.vrs1(i) := 0.U
     VALU.io.vrs2(i) := 0.U
     VALU.io.vrd(i) := 0.U
@@ -96,7 +96,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
 
   //VALU Registers
 
-  val VALUOutReg = Reg(Vec(16,UInt(24.W)))
+  val VALUOutReg = Reg(Vec(VectorRegisterLength,UInt(24.W)))
 
   val DataHazard = RegInit(0.U(5.W))
   val VectorDataHazard = RegInit(0.U(3.W))
@@ -105,9 +105,9 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
   val rs2 = Wire(UInt(24.W))
   val rd = Wire(UInt(24.W))
 
-  val vrs1 = Wire(Vec(16,UInt(24.W)))
-  val vrs2 = Wire(Vec(16,UInt(24.W)))
-  val vrd = Wire(Vec(16,UInt(24.W)))
+  val vrs1 = Wire(Vec(VectorRegisterLength,UInt(24.W)))
+  val vrs2 = Wire(Vec(VectorRegisterLength,UInt(24.W)))
+  val vrd = Wire(Vec(VectorRegisterLength,UInt(24.W)))
   val vrs = Wire(UInt(24.W))
   val vlen = Wire(UInt(6.W))
 
@@ -502,7 +502,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
 
       VALU.io.vrs1 := vrs1
 
-      for(i <- 0 until 16){
+      for(i <- 0 until VectorRegisterLength){
         VALU.io.vrs2(i) := VectorIn.AImmediate
       }
 
@@ -523,7 +523,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
 
         // li 
 
-        for(i <- 0 until 16){
+        for(i <- 0 until VectorRegisterLength){
           VALU.io.vrs2(i) := 0.U
           VALU.io.vrs1(i) := VectorIn.AImmediate
         }
@@ -541,7 +541,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
 
         VALU.io.en := true.B
 
-        for(i <- 0 until 16){
+        for(i <- 0 until VectorRegisterLength){
           VALU.io.vrs2(i) := 0.U
 
           val upper = Wire(UInt(12.W))
@@ -569,7 +569,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
 
           VALU.io.en := true.B
 
-          for(i <- 0 until 16){
+          for(i <- 0 until VectorRegisterLength){
             VALU.io.vrs2(i) := In.AImmediate.asUInt
           }
 
@@ -624,7 +624,7 @@ class ExecuteStage(Lanes: Int, Memsize: Int) extends Module {
 
       VALU.io.en := true.B
 
-      for(i <- 0 until 16){
+      for(i <- 0 until VectorRegisterLength){
         VALU.io.vrs2(i) := io.x(VectorIn.rs)
       }
 

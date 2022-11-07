@@ -6,7 +6,7 @@ import javax.sound.sampled.{AudioFormat, AudioSystem, AudioInputStream, AudioFil
 object Sounds {
 
   val buf = new Array[Byte](2)
-  //val af = new AudioFormat(Constants.SampleFrequency.toFloat, 16, 1, true, true)
+  //val af = new AudioFormat(Constants.SampleFrequency.toFloat, VectorRegisterLength, 1, true, true)
   val af = new AudioFormat(44100.toFloat, 16, 1, true, true)
   val sdl = AudioSystem.getSourceDataLine(af)
   
