@@ -1,0 +1,65 @@
+Read Hit: 
+    Read from cache
+Dirty Read Miss:
+    Write to mem
+    Read from mem 
+    Read from cache
+Clean Read Miss 
+    Read from mem
+    Read from cache
+Write Hit
+    Write to cache
+Dirty Write Miss 
+    Write to mem
+    Write to cache
+Clean Write Miss 
+    Write to cache
+
+Read: 
+    index 0: 
+        if(tag(Cnt) = address.tag){
+            Register = Data
+            Cnt ++ 
+        }else{
+            if(Dirty){
+                WriteQueue := Data(cnt)
+                Write 
+            }else{ // Cleam
+
+            }
+        }
+
+
+Worst case: 
+    Read: 
+        First index is hit
+        next index is clean miss 
+        next index is dirty miss 
+
+        Write through eliminates dirty data 
+        a 
+
+
+Vector Read:
+    ReadScan 
+    Vector Read Hit: 
+        Read sequentially from cache 
+    Vector Dirty Read Miss:
+        Scan through write space, and initalize chain write if needed. 
+        Chain write to memory 
+        Chain read from memory
+    Vector Clean Read Miss: 
+        Chain Read from memory
+Vector Write:
+    WriteScan
+    Vector Write Hit: 
+        Sequential write to cache
+    Vector Dirty Write Miss: 
+        Chain write to mem 
+        Sequential write to cache 
+    Vector Clean Write Miss: 
+        Sequential write to cache
+
+
+Check next rule: 
+    At any writeback to memory, the chain write can continue out of bounds, if the proceding cache location is dirty, and proceeds the address of the chain write. 

@@ -44,6 +44,7 @@ class ExecuteStage(Lanes: Int, VectorRegisters: Int, VectorRegisterLength: Int, 
     val WritebackRegister = Output(UInt(5.W))
     val ALUOut = Output(UInt(24.W))
     val VALUOut = Output(Vec(VectorRegisterLength,UInt(24.W)))
+    val MemOut = Output(UInt(24.W))
     val JumpValue = Output(UInt(18.W))
     val readValid = Output(UInt(1.W))
   })
@@ -115,6 +116,11 @@ class ExecuteStage(Lanes: Int, VectorRegisters: Int, VectorRegisterLength: Int, 
 
   val swStall = RegInit(0.U(1.W))
   val lwStall = RegInit(0.U(1.W))
+
+  //Memory registers 
+
+  val ReadReg = RegInit(0.U(24.W))
+  Out.MemOut := ReadReg
 
   // Data hazard protection
 
@@ -435,13 +441,14 @@ class ExecuteStage(Lanes: Int, VectorRegisters: Int, VectorRegisterLength: Int, 
         }
       }
 
-      /*
-
+      
       when(!io.MemPort.Completed){
         io.Stall := true.B
+      }.otherwise{
+        ReadReg := io.MemPort.ReadData(0)
       }
 
-      */
+      
 
       WritebackRegister := In.rd
     }

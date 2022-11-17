@@ -13,6 +13,7 @@ object Core{
   val vArithmetic = 6.U
   val vImmidiateArithmetic = 7.U
   val vMemoryI = 8.U
+
 }
 
 class Core(Program: String, Lanes: Int, VectorRegisters: Int, VectorRegisterLength: Int, Memsize: Int) extends Module {
@@ -110,7 +111,8 @@ class Core(Program: String, Lanes: Int, VectorRegisters: Int, VectorRegisterLeng
         }
       }
       is(MemoryI){
-        x(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData(0)
+        //x(ExecuteStage.Out.WritebackRegister) := io.MemPort.ReadData(0)
+        x(ExecuteStage.Out.WritebackRegister) := ExecuteStage.Out.MemOut
       }
       is(Conditional){
         x(1) := ExecuteStage.Out.JumpValue

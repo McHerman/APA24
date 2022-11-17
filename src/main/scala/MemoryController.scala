@@ -15,9 +15,10 @@ object SPI_CMDS {
 }
 
 class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
+  /*
   val io = IO(new Bundle {
-    val ReadEnable = Input(Bool())
-    val WriteEnable = Input(Bool())
+    val Enable = Input(Bool())
+    val WriteEn = Input(Bool())
     val Address = Input(UInt(24.W))
     val WriteData = Input(Vec(VectorRegisterLength,UInt(24.W)))
     val ReadData = Output(Vec(VectorRegisterLength,UInt(24.W)))
@@ -25,6 +26,10 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
 
     val Ready = Output(Bool())
     val Completed = Output(Bool())
+  })
+  */
+  val io = IO(new Bundle {
+    val MemPort = Flipped(new MemPort(VectorRegisterLength))
   })
 
   val SPI = IO(new Bundle{
@@ -44,10 +49,11 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
   val DataReg = Reg(Vec(VectorRegisterLength,UInt(24.W)))
 
   SPI.CE := true.B
-  io.Completed := false.B
-  io.Ready := false.B
+  io.MemPort.Completed := false.B
+  io.MemPort.Ready := false.B
+  io.MemPort.ReadValid := false.B
 
-  io.ReadData := DataReg
+  io.MemPort.ReadData := DataReg
 
   SPI.SI := 0.U(4.W).asBools
 
@@ -64,6 +70,7 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
 
   val WriteDataReg = Reg(Vec(VectorRegisterLength,UInt(24.W)))
   val AddressReg = RegInit(0.U(24.W))
+  val LenReg = RegInit(0.U(5.W))
 
   val SPI_mode = RegInit(1.U(1.W)) // 0 for serial, 1 for quad SPI 
 
@@ -187,9 +194,9 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
       // Waits for command from main
 
       SPI.CE := true.B
-      io.Ready := true.B
+      io.MemPort.Ready := true.B
 
-      when(io.ReadEnable) {
+      when(io.MemPort.Enable) {
         switch(SPI_mode){
           is(0.U){
             StateReg := read
@@ -201,8 +208,8 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
         SubStateReg := transmitCMD
         SPI.CE := false.B
         ClockReset := true.B
-        AddressReg := io.Address
-      }.elsewhen(io.WriteEnable) {
+        AddressReg := io.MemPort.Address
+      }.elsewhen(io.MemPort.WriteEn) {
         switch(SPI_mode){
           is(0.U){
             StateReg := write
@@ -214,17 +221,14 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
         SubStateReg := transmitCMD
         SPI.CE := false.B
         ClockReset := true.B
-        AddressReg := io.Address
-
-        
+        AddressReg := io.MemPort.Address
+        LenReg := io.MemPort.Len
 
         for(i <- 0 until VectorRegisterLength){
-          WriteDataReg(i) := io.WriteData(i)
+          WriteDataReg(i) := io.MemPort.WriteData(i)
         }
 
-        
-
-        //WriteDataReg := io.WriteData
+        //WriteDataReg := io.MemPort.MemPort.MemPort.WriteData
       }
     }
     is(read) {
@@ -278,8 +282,8 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
             VecCntReg := VecCntReg + 1.U
           }
 
-          when(CntReg === 15.U && VecCntReg === (io.Len - 1.U) && NextStateInv) {
-            io.Completed := true.B
+          when(CntReg === 15.U && VecCntReg === (LenReg - 1.U) && NextStateInv) {
+            io.MemPort.Completed := true.B
             CntReg := 0.U
             VecCntReg := 0.U
             StateReg := idle
@@ -326,7 +330,7 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
           ClockEn := true.B
           SPI.Drive := true.B
 
-          SPI.SI(1) := WriteDataReg((io.Len - 1.U) - VecCntReg)(23.U - CntReg)
+          SPI.SI(1) := WriteDataReg((LenReg - 1.U) - VecCntReg)(23.U - CntReg)
 
           when(NextStateInv){
             CntReg := CntReg + 1.U
@@ -337,10 +341,10 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
             VecCntReg := VecCntReg + 1.U 
           }
 
-          when(CntReg === 23.U && VecCntReg === (io.Len - 1.U) && NextStateInv) {
+          when(CntReg === 23.U && VecCntReg === (LenReg - 1.U) && NextStateInv) {
             CntReg := 0.U
             VecCntReg := 0.U
-            io.Completed := true.B
+            io.MemPort.Completed := true.B
             StateReg := idle
             SPI.CE := true.B
           }
@@ -404,10 +408,10 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
             VecCntReg := VecCntReg + 1.U
           }
 
-          when(CntReg === 20.U && VecCntReg === (io.Len - 1.U) && NextStateInv) {
+          when(CntReg === 20.U && VecCntReg === (LenReg - 1.U) && NextStateInv) {
             CntReg := 0.U
             VecCntReg := 0.U
-            io.Completed := true.B
+            io.MemPort.Completed := true.B
             StateReg := idle
           }
         }
@@ -461,7 +465,7 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
           for(i <- 0 until 24 by 4){
             switch(CntReg){
               is(i.U){
-                SPI.SI := WriteDataReg((io.Len - 1.U) - VecCntReg)(23-i,20-i).asBools
+                SPI.SI := WriteDataReg((LenReg - 1.U) - VecCntReg)(23-i,20-i).asBools
               }
             }
           }
@@ -475,10 +479,10 @@ class MemoryController(Count: Int, VectorRegisterLength: Int) extends Module {
             VecCntReg := VecCntReg + 1.U
           }
 
-          when(CntReg === 12.U && VecCntReg === (io.Len - 1.U) && NextStateInv) {
+          when(CntReg === 12.U && VecCntReg === (LenReg - 1.U) && NextStateInv) {
             CntReg := 0.U
             VecCntReg := 0.U
-            io.Completed := true.B
+            io.MemPort.Completed := true.B
             StateReg := idle
             SPI.CE := true.B
           }

@@ -14,7 +14,8 @@ class CacheMemory(Memports: Int, CacheSize: Int, VectorRegisterLength: Int) exte
 
   //val Memory = SyncReadMem(Memsize, UInt(24.W))
 
-  val Cache = Module(new Cache(CacheSize, VectorRegisterLength))
+  //val Cache = Module(new Cache(CacheSize, VectorRegisterLength))
+  val Cache = Module(new WriteThroughCache(CacheSize,VectorRegisterLength))
   //val SPIArbiter = Module(new SPIArbiter(1))
 
   // Defaults
@@ -26,6 +27,7 @@ class CacheMemory(Memports: Int, CacheSize: Int, VectorRegisterLength: Int) exte
 
     io.MemPort(i).Completed := false.B
     io.MemPort(i).ReadValid := false.B
+    io.MemPort(i).Ready := false.B
   
   }
 

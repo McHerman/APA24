@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 class SampleTest_Verilator extends AnyFlatSpec with ChiselScalatestTester {
 
-  val xml = XML.loadFile("config/APA24.xml")
+  val xml = XML.loadFile("config/APA24ex.xml")
   
   behavior of "APA24"
 

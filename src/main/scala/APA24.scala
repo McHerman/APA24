@@ -23,6 +23,7 @@ class MemPort(VectorRegisterLength: Int) extends Bundle{
   val ReadData = Input(Vec(VectorRegisterLength,UInt(24.W)))
   val Completed = Input(Bool())
   val ReadValid = Input(Bool())
+  val Ready = Input(Bool())
 }
 
 object Text{
@@ -78,8 +79,8 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
 
 
   val Core = Module(new Core("Programs/MachineCode/" + Program + ".mem", Lanes, VectorRegisters, VectorRegisterLength, Memsize))
-  val SPI = Module(new SPIArbiter(1,VectorRegisterLength))
-
+  //val SPI = Module(new SPIArbiter(1,VectorRegisterLength))
+  val SPI = Module(new MemoryController(1,VectorRegisterLength))
 
   if(HasCache){
     val Cache = Module(new CacheMemory(1,CacheSize,VectorRegisterLength))
@@ -87,14 +88,16 @@ class APA24(maxCount: Int, xml: scala.xml.Elem) extends Module {
     Core.io.MemPort <> Cache.io.MemPort(0)
     Core.io.MemTaken := false.B
 
-    SPI.io.MemPort(0) <> Cache.io.SPIMemPort
+    //SPI.io.MemPort(0) <> Cache.io.SPIMemPort
+    SPI.io.MemPort <> Cache.io.SPIMemPort
   }else{
     val DataMemory = Module(new DataMemory(1, Memsize ,VectorRegisterLength, SPIRAM_Offset))
     
     Core.io.MemPort <> DataMemory.io.MemPort(0)
     Core.io.MemTaken := DataMemory.io.Taken
 
-    SPI.io.MemPort(0) <> DataMemory.io.SPIMemPort
+    //SPI.io.MemPort(0) <> DataMemory.io.SPIMemPort
+    SPI.io.MemPort <> DataMemory.io.SPIMemPort
   }
 
   // IO
