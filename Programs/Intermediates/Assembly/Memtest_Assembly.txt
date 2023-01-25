@@ -1,0 +1,6 @@
+.main 
+li x16, 1
+li x17, 2
+swi x16, 1
+lwi x18, 1
+swi x17, 1
