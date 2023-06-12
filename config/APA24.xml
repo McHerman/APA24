@@ -4,9 +4,17 @@
     <Inputs>
       <Input node="In"/>
     </Inputs>
-    <BRAM size="2048"/>
-    <DRAM offset="0"/>
-    <VALU lanes="4"/>
+    <Vector>
+      <VALU lanes="4"/>
+      <Registers number="8" length="16"/>
+    </Vector>
+    <Memory>
+      <Cache hasCache="true" type="WriteBack">
+        <Size bit="10"/>
+      </Cache>
+      <BRAM size="0"/>
+      <DRAM offset="0"/>
+    </Memory>
   </Core>
   <InputController type="DS"/>
   <OutputController type="DS"/>
